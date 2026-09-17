@@ -14,9 +14,8 @@
   <xacro:include filename="$(find gzbot_description)/urdf/control/gzbot_ros2_control.urdf.xacro" />
   <xacro:gzbot_ros2_control use_gazebo="$(arg use_gazebo)" />
 
-  <xacro:include
-    filename="$(find gzbot_description)/urdf/control/load_gazebo_sim_ros2_control_plugin.urdf.xacro" />
-  <xacro:load_gazebo_sim_ros2_control_plugin use_gazebo="$(arg use_gazebo)" />
+  <xacro:include filename="$(find gzbot_description)/urdf/control/gzbot_sim_ros2_control.urdf.xacro" />
+  <xacro:gzbot_sim_ros2_control use_gazebo="$(arg use_gazebo)" />
 
   <joint name="gripper_base_joint" type="fixed">
     <parent link="tool_link" />
