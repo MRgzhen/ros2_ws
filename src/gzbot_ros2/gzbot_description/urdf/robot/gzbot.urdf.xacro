@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="use_gazebo" default="false" />
+
+  <xacro:include filename="$(find gzbot_description)/urdf/mesh/common_properties.urdf.xacro" />
+
+  <xacro:include filename="$(find gzbot_description)/urdf/mesh/gzbot_arm.urdf.xacro" />
+  <xacro:gzbot_arm />
+
+  <xacro:include filename="$(find gzbot_description)/urdf/mesh/gzbot_gripper.urdf.xacro" />
+  <xacro:gzbot_gripper />
+
+  <xacro:include filename="$(find gzbot_description)/urdf/control/gzbot_ros2_control.urdf.xacro" />
+  <xacro:gzbot_ros2_control use_gazebo="$(arg use_gazebo)" />
+
+  <xacro:include
+    filename="$(find gzbot_description)/urdf/control/load_gazebo_sim_ros2_control_plugin.urdf.xacro" />
+  <xacro:load_gazebo_sim_ros2_control_plugin use_gazebo="$(arg use_gazebo)" />
+
+  <joint name="gripper_base_joint" type="fixed">
+    <parent link="tool_link" />
+    <child link="gripper_base_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+</robot>
