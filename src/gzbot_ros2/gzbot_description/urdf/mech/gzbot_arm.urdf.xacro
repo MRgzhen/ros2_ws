@@ -1,14 +1,18 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
     <xacro:macro name="gzbot_arm">
+
         <!-- base_link: box size 0.4 0.4 0.1 -->
         <link name="base_link">
+            <xacro:box_inertial m="1.0" x="0.4" y="0.4" z="0.1" />
             <visual>
                 <geometry>
                     <box size="0.4 0.4 0.1" />
                 </geometry>
                 <origin xyz="0 0 0.05" rpy="0 0 0" />
-                <material name="grey" />
+                <material name="grey">
+                    <color rgba="0.5 0.5 0.5 1" />
+                </material>
             </visual>
             <collision>
                 <geometry>
@@ -17,18 +21,27 @@
                 <origin xyz="0 0 0.05" rpy="0 0 0" />
             </collision>
         </link>
+        <!-- gz 材质写法（Gazebo/Orange 是 Gazebo Classic 专用，gz/ign 不识别） -->
         <gazebo reference="base_link">
-            <material>Gazebo/Orange</material>
+            <visual>
+                <material>
+                    <ambient>0.5 0.5 0.5 1</ambient>
+                    <diffuse>0.5 0.5 0.5 1</diffuse>
+                </material>
+            </visual>
         </gazebo>
 
         <!-- shoulder_link: cylinder length 0.5 radius 0.1 -->
         <link name="shoulder_link">
+            <xacro:cylinder_inertial m="0.5" r="0.1" l="0.5" />
             <visual>
                 <geometry>
                     <cylinder length="0.5" radius="0.1" />
                 </geometry>
                 <origin xyz="0 0 0.25" rpy="0 0 0" />
-                <material name="blue" />
+                <material name="blue">
+                    <color rgba="0 0 0.5 1" />
+                </material>
             </visual>
             <collision>
                 <geometry>
@@ -40,13 +53,16 @@
 
         <!-- arm_link: cylinder length 0.6 radius 0.05 -->
         <link name="arm_link">
+            <xacro:cylinder_inertial m="0.4" r="0.05" l="0.6" />
             <visual>
                 <geometry>
                     <cylinder length="0.6" radius="0.05" />
                 </geometry>
                 <!-- cylinder default along z, rotate to x direction -->
                 <origin xyz="0 0 0.3" rpy="0 0 0" />
-                <material name="grey" />
+                <material name="grey">
+                    <color rgba="0.5 0.5 0.5 1" />
+                </material>
             </visual>
             <collision>
                 <geometry>
@@ -58,12 +74,15 @@
 
         <!-- elbow_link: cylinder length 0.1 radius 0.05 -->
         <link name="elbow_link">
+            <xacro:cylinder_inertial m="0.1" r="0.05" l="0.1" />
             <visual>
                 <geometry>
                     <cylinder length="0.1" radius="0.05" />
                 </geometry>
                 <origin xyz="0 0 0.05" rpy="0 0 0" />
-                <material name="blue" />
+                <material name="blue">
+                    <color rgba="0 0 0.5 1" />
+                </material>
             </visual>
             <collision>
                 <geometry>
@@ -75,13 +94,16 @@
 
         <!-- forearm_link: cylinder length 0.5 radius 0.05 -->
         <link name="forearm_link">
+            <xacro:cylinder_inertial m="0.3" r="0.05" l="0.5" />
             <visual>
                 <geometry>
                     <cylinder length="0.5" radius="0.05" />
                 </geometry>
                 <!-- cylinder default along z, rotate to x direction -->
                 <origin xyz="0 0 0.25" rpy="0 0 0" />
-                <material name="grey" />
+                <material name="grey">
+                    <color rgba="0.5 0.5 0.5 1" />
+                </material>
             </visual>
             <collision>
                 <geometry>
@@ -93,12 +115,15 @@
 
         <!-- wrist_link: box size 0.1 0.1 0.05 -->
         <link name="wrist_link">
+            <xacro:box_inertial m="0.1" x="0.1" y="0.1" z="0.05" />
             <visual>
                 <geometry>
                     <box size="0.1 0.1 0.05" />
                 </geometry>
                 <origin xyz="0 0 0.025" rpy="0 0 0" />
-                <material name="blue" />
+                <material name="blue">
+                    <color rgba="0 0 0.5 1" />
+                </material>
             </visual>
             <collision>
                 <geometry>
@@ -110,12 +135,15 @@
 
         <!-- hand_link: box size 0.1 0.1 0.02 -->
         <link name="hand_link">
+            <xacro:box_inertial m="0.05" x="0.1" y="0.1" z="0.02" />
             <visual>
                 <geometry>
                     <box size="0.1 0.1 0.02" />
                 </geometry>
                 <origin xyz="0 0 0.01" rpy="0 0 0" />
-                <material name="grey" />
+                <material name="grey">
+                    <color rgba="0.5 0.5 0.5 1" />
+                </material>
             </visual>
             <collision>
                 <geometry>
@@ -125,8 +153,10 @@
             </collision>
         </link>
 
-        <!-- tool_link: no visual -->
-        <link name="tool_link" />
+        <!-- tool_link: no visual，占位惯性防零质量实体被拒 -->
+        <link name="tool_link">
+            <xacro:dummy_inertial />
+        </link>
 
         <!-- joint1: revolute, axis z, min -3.14, max 3.14 -->
         <joint name="joint1" type="revolute">

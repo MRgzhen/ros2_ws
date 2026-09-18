@@ -3,12 +3,13 @@
 
   <xacro:arg name="use_gazebo" default="false" />
 
-  <xacro:include filename="$(find gzbot_description)/urdf/mesh/common_properties.urdf.xacro" />
+  <xacro:include filename="$(find gzbot_description)/urdf/mech/common_properties.urdf.xacro" />
+  <xacro:include filename="$(find gzbot_description)/urdf/common/inertial_macros.urdf.xacro" />
 
-  <xacro:include filename="$(find gzbot_description)/urdf/mesh/gzbot_arm.urdf.xacro" />
+  <xacro:include filename="$(find gzbot_description)/urdf/mech/gzbot_arm.urdf.xacro" />
   <xacro:gzbot_arm />
 
-  <xacro:include filename="$(find gzbot_description)/urdf/mesh/gzbot_gripper.urdf.xacro" />
+  <xacro:include filename="$(find gzbot_description)/urdf/mech/gzbot_gripper.urdf.xacro" />
   <xacro:gzbot_gripper />
 
   <xacro:include filename="$(find gzbot_description)/urdf/control/gzbot_ros2_control.urdf.xacro" />
