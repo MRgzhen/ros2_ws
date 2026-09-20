@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="chassis"
+    params="visual_type collision_type mesh_dir app">
+    <!-- Chassis -->
+      <!-- Right Front Wheel Steering -->
+      <link
+        name="chassis_rwheel_front_link1">
+        <inertial>
+          <origin
+            xyz="4E-06 0.002587 -0.052202"
+            rpy="0 0 0" />
+          <mass
+            value="0.5" />
+          <inertia
+            ixx="0.003408"
+            ixy="0"
+            ixz="0"
+            iyy="0.003381"
+            iyz="4.8E-05"
+            izz="0.001866" />
+        </inertial>
+        <visual>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/G2U/T1/chassis_rwheel_front_link1.STL" />
+          </geometry>
+          <material
+            name="">
+            <color
+              rgba="0.79216 0.81961 0.93333 1" />
+          </material>
+        </visual>
+      </link>
+      <joint
+        name="idx131_chassis_rwheel_front_joint1"
+        type="revolute">
+        <origin
+          xyz="0.308 -0.1925 0.1665"
+          rpy="0 0 0" />
+        <parent
+          link="base_link" />
+        <child
+          link="chassis_rwheel_front_link1" />
+        <axis
+          xyz="0 0 1" />
+        <limit
+          lower="-2.6529"
+          upper="2.6529"
+          effort="13.5"
+          velocity="4.83" />
+      </joint>
+       <!-- Right Front Wheel Driving -->
+      <link
+        name="chassis_rwheel_front_link2">
+        <inertial>
+          <origin
+            xyz="-0.000261 -0.011015 0.00017"
+            rpy="0 0 0" />
+          <mass
+            value="3" />
+          <inertia
+            ixx="0.005529"
+            ixy="-3.1E-05"
+            ixz="-1.3E-05"
+            iyy="0.006754"
+            iyz="-5.2E-05"
+            izz="0.005512" />
+        </inertial>
+        <visual>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/G2U/T1/chassis_rwheel_front_link2.STL" />
+          </geometry>
+          <material
+            name="">
+            <color
+              rgba="0.79216 0.81961 0.93333 1" />
+          </material>
+        </visual>
+      </link>
+      <joint
+        name="idx132_chassis_rwheel_front_joint2"
+        type="continuous">
+        <origin
+          xyz="0 0 -0.0965"
+          rpy="0 0 0" />
+        <parent
+          link="chassis_rwheel_front_link1" />
+        <child
+          link="chassis_rwheel_front_link2" />
+        <axis
+          xyz="0 1 0" />
+        <limit
+          effort="27"
+          velocity="4.88" />
+      </joint>
+      <!-- Left Rear Wheel Steering -->
+      <link
+        name="chassis_lwheel_rear_link1">
+        <inertial>
+          <origin
+            xyz="-4E-06 -0.002587 -0.052202"
+            rpy="0 0 0" />
+          <mass
+            value="0.5" />
+          <inertia
+            ixx="0.003408"
+            ixy="0"
+            ixz="0"
+            iyy="0.003381"
+            iyz="-4.8E-05"
+            izz="0.001866" />
+        </inertial>
+        <visual>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/G2U/T1/chassis_lwheel_rear_link1.STL" />
+          </geometry>
+          <material
+            name="">
+            <color
+              rgba="0.79216 0.81961 0.93333 1" />
+          </material>
+        </visual>
+      </link>
+      <joint
+        name="idx121_chassis_lwheel_rear_joint1"
+        type="revolute">
+        <origin
+          xyz="-0.307 0.1925 0.1665"
+          rpy="0 0 0" />
+        <parent
+          link="base_link" />
+        <child
+          link="chassis_lwheel_rear_link1" />
+        <axis
+          xyz="0 0 1" />
+        <limit
+          lower="-2.6529"
+          upper="2.6529"
+          effort="13.5"
+          velocity="4.83" />
+      </joint>
+      <!-- Left Rear Wheel Driving -->
+      <link
+        name="chassis_lwheel_rear_link2">
+        <inertial>
+          <origin
+            xyz="0.000261 0.011015 0.00017"
+            rpy="0 0 0" />
+          <mass
+            value="3" />
+          <inertia
+            ixx="0.005529"
+            ixy="-3.1E-05"
+            ixz="1.3E-05"
+            iyy="0.006754"
+            iyz="5.2E-05"
+            izz="0.005512" />
+        </inertial>
+        <visual>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/G2U/T1/chassis_lwheel_rear_link2.STL" />
+          </geometry>
+          <material
+            name="">
+            <color
+              rgba="0.79216 0.81961 0.93333 1" />
+          </material>
+        </visual>
+      </link>
+      <joint
+        name="idx122_chassis_lwheel_rear_joint2"
+        type="continuous">
+        <origin
+          xyz="0 0 -0.0965"
+          rpy="0 0 0" />
+        <parent
+          link="chassis_lwheel_rear_link1" />
+        <child
+          link="chassis_lwheel_rear_link2" />
+        <axis
+          xyz="0 1 0" />
+        <limit
+          effort="27"
+          velocity="4.88" />
+      </joint>
+  
+  </xacro:macro>
+</robot>

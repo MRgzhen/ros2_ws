@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<robot name="G1"
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="G1" params="lgripper rgripper app visual_type collision_type mesh_dir">
+    <!-- common properties -->
+    <xacro:property name="left_arm_base_link" value="arm_left_base_link" />
+    <xacro:property name="right_arm_base_link" value="arm_right_base_link" />
+    <xacro:property name="left_arm_end_link" value="arm_l_end_link" />
+    <xacro:property name="right_arm_end_link" value="arm_r_end_link" />
+
+    <!-- import robot components -->
+    <!-- body -->
+    <xacro:include filename="G1.body.urdf.xacro" />
+    <!-- arm -->
+    <xacro:include filename="G1.arm.urdf.xacro" />
+    <!-- gripper -->
+    <xacro:include ns="omnipicker"  filename="gripper.omnipicker.G1.urdf.xacro" />
+
+    <!-- assemble robot -->
+    <!-- ======================== body ======================== -->
+    <xacro:body 
+      left_arm_base_link="${left_arm_base_link}"
+      right_arm_base_link="${right_arm_base_link}" 
+      mesh_dir="${mesh_dir}" />
+    <!-- ======================== arm ======================== -->
+    <xacro:arm_l 
+      parent_link="${left_arm_base_link}"
+      end_link="${left_arm_end_link}" 
+      mesh_dir="${mesh_dir}" />
+    <xacro:arm_r 
+      parent_link="${right_arm_base_link}"
+      end_link="${right_arm_end_link}"  
+      mesh_dir="${mesh_dir}" />
+
+    <!-- ======================== gripper ======================== -->
+    <!-- omnipicker -->
+    <xacro:if value="${'omnipicker' == lgripper}">
+      <xacro:omnipicker.gripper_l 
+        tf_prefix="l" 
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0.0061" 
+        rpy_offset="0 0 ${PI_2}" 
+        center_z_offset=".14308"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        mesh_dir="${mesh_dir}" 
+        app="${app}" />
+    </xacro:if>
+    <xacro:if value="${'omnipicker' == rgripper}">
+      <xacro:omnipicker.gripper_r 
+        tf_prefix="r" 
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0.0061" 
+        rpy_offset="0 0 -${PI_2}" 
+        center_z_offset=".14308"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        mesh_dir="${mesh_dir}" 
+        app="${app}" />
+    </xacro:if>
+
+  </xacro:macro>
+</robot>

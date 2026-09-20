@@ -1,0 +1,221 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- ==================================================================== -->
+    <!-- One finger of the wuji hand.                                          -->
+    <!-- Topology: link1 -> link2 -> link3 -> link4 -> pad                     -->
+    <!--           4 revolute joints (joint1..joint4) + 1 fixed pad joint.     -->
+    <!--                                                                       -->
+    <!-- Params:                                                               -->
+    <!--   prefix      : URDF link/joint prefix ('hand_l' or 'hand_r')         -->
+    <!--   side        : mesh dir / const.xacro lookup key ('left' / 'right')  -->
+    <!--   fid         : integer finger id 1..5 (into const.xacro dicts)       -->
+    <!--   finger_name : anatomical name ('thumb'/'index'/'middle'/'ring'/'pinky') -->
+    <!--                 embedded in link/joint names per naming_convention.hand.md -->
+    <!--   mesh_path   : directory holding the STL meshes for this side        -->
+    <!--   collision_type : 'physics_solver' emits per-link full-mesh collision; -->
+    <!--                    any other value (e.g. 'swept_hull') emits none, since -->
+    <!--                    the whole-hand swept hull lives on the palm/base link. -->
+    <!-- ==================================================================== -->
+    <xacro:macro name="wuji_finger" params="prefix side fid finger_name mesh_path collision_type:='swept_hull'">
+
+        <!-- pick the shared (thumb / other) mass+inertia table for this finger -->
+        <xacro:property name="grp" value="${'thumb' if fid == 1 else 'other'}" />
+
+        <!-- per-finger axis lookup: default +Y, overridden only where the urdf differs -->
+        <xacro:property name="axis_fid" value="${joint_axis.get(side, dict()).get(fid, dict())}" />
+
+        <!-- ============================ link1 ============================ -->
+        <link name="${prefix}_${finger_name}_link1">
+            <inertial>
+                <origin rpy="0 0 0"
+                    xyz="${link_com[side][fid][1][0]} ${link_com[side][fid][1][1]} ${link_com[side][fid][1][2]}" />
+                <mass value="${link_mass[grp][1]}" />
+                <inertia ixx="${link_inertia[grp][1]['ixx']}" ixy="${link_inertia[grp][1]['ixy']}"
+                    ixz="${link_inertia[grp][1]['ixz']}" iyy="${link_inertia[grp][1]['iyy']}"
+                    iyz="${link_inertia[grp][1]['iyz']}" izz="${link_inertia[grp][1]['izz']}" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${mesh_path}/${side}_finger${fid}_link1.STL" />
+                </geometry>
+                <material name="hand_color" />
+            </visual>
+            <xacro:if value="${collision_type == 'physics_solver'}">
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="${mesh_path}/${side}_finger${fid}_link1.STL" />
+                    </geometry>
+                </collision>
+            </xacro:if>
+        </link>
+
+        <joint name="${prefix}_${finger_name}_joint1" type="revolute">
+            <origin
+                xyz="${joint_xyz[side][fid][1][0]} ${joint_xyz[side][fid][1][1]} ${joint_xyz[side][fid][1][2]}"
+                rpy="${joint_rpy[side][fid][1][0]} ${joint_rpy[side][fid][1][1]} ${joint_rpy[side][fid][1][2]}" />
+            <parent link="${prefix}_base_link" />
+            <child link="${prefix}_${finger_name}_link1" />
+            <axis xyz="${axis_fid.get(1, joint_axis_default)[0]} ${axis_fid.get(1, joint_axis_default)[1]} ${axis_fid.get(1, joint_axis_default)[2]}" />
+            <limit lower="${joint_limit[fid][1][0]}" upper="${joint_limit[fid][1][1]}"
+                effort="${joint_limit[fid][1][2]}" velocity="${joint_limit[fid][1][3]}" />
+        </joint>
+
+        <!-- ============================ link2 ============================ -->
+        <link name="${prefix}_${finger_name}_link2">
+            <inertial>
+                <origin rpy="0 0 0"
+                    xyz="${link_com[side][fid][2][0]} ${link_com[side][fid][2][1]} ${link_com[side][fid][2][2]}" />
+                <mass value="${link_mass[grp][2]}" />
+                <inertia ixx="${link_inertia[grp][2]['ixx']}" ixy="${link_inertia[grp][2]['ixy']}"
+                    ixz="${link_inertia[grp][2]['ixz']}" iyy="${link_inertia[grp][2]['iyy']}"
+                    iyz="${link_inertia[grp][2]['iyz']}" izz="${link_inertia[grp][2]['izz']}" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${mesh_path}/${side}_finger${fid}_link2.STL" />
+                </geometry>
+                <material name="hand_color" />
+            </visual>
+            <xacro:if value="${collision_type == 'physics_solver'}">
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="${mesh_path}/${side}_finger${fid}_link2.STL" />
+                    </geometry>
+                </collision>
+            </xacro:if>
+        </link>
+
+        <joint name="${prefix}_${finger_name}_joint2" type="revolute">
+            <origin
+                xyz="${joint_xyz[side][fid][2][0]} ${joint_xyz[side][fid][2][1]} ${joint_xyz[side][fid][2][2]}"
+                rpy="${joint_rpy[side][fid][2][0]} ${joint_rpy[side][fid][2][1]} ${joint_rpy[side][fid][2][2]}" />
+            <parent link="${prefix}_${finger_name}_link1" />
+            <child link="${prefix}_${finger_name}_link2" />
+            <axis xyz="${axis_fid.get(2, joint_axis_default)[0]} ${axis_fid.get(2, joint_axis_default)[1]} ${axis_fid.get(2, joint_axis_default)[2]}" />
+            <limit lower="${joint_limit[fid][2][0]}" upper="${joint_limit[fid][2][1]}"
+                effort="${joint_limit[fid][2][2]}" velocity="${joint_limit[fid][2][3]}" />
+        </joint>
+
+        <!-- ============================ link3 ============================ -->
+        <link name="${prefix}_${finger_name}_link3">
+            <inertial>
+                <origin rpy="0 0 0"
+                    xyz="${link_com[side][fid][3][0]} ${link_com[side][fid][3][1]} ${link_com[side][fid][3][2]}" />
+                <mass value="${link_mass[grp][3]}" />
+                <inertia ixx="${link_inertia[grp][3]['ixx']}" ixy="${link_inertia[grp][3]['ixy']}"
+                    ixz="${link_inertia[grp][3]['ixz']}" iyy="${link_inertia[grp][3]['iyy']}"
+                    iyz="${link_inertia[grp][3]['iyz']}" izz="${link_inertia[grp][3]['izz']}" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${mesh_path}/${side}_finger${fid}_link3.STL" />
+                </geometry>
+                <material name="hand_color" />
+            </visual>
+            <xacro:if value="${collision_type == 'physics_solver'}">
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="${mesh_path}/${side}_finger${fid}_link3.STL" />
+                    </geometry>
+                </collision>
+            </xacro:if>
+        </link>
+
+        <joint name="${prefix}_${finger_name}_joint3" type="revolute">
+            <origin
+                xyz="${joint_xyz[side][fid][3][0]} ${joint_xyz[side][fid][3][1]} ${joint_xyz[side][fid][3][2]}"
+                rpy="${joint_rpy[side][fid][3][0]} ${joint_rpy[side][fid][3][1]} ${joint_rpy[side][fid][3][2]}" />
+            <parent link="${prefix}_${finger_name}_link2" />
+            <child link="${prefix}_${finger_name}_link3" />
+            <axis xyz="${axis_fid.get(3, joint_axis_default)[0]} ${axis_fid.get(3, joint_axis_default)[1]} ${axis_fid.get(3, joint_axis_default)[2]}" />
+            <limit lower="${joint_limit[fid][3][0]}" upper="${joint_limit[fid][3][1]}"
+                effort="${joint_limit[fid][3][2]}" velocity="${joint_limit[fid][3][3]}" />
+        </joint>
+
+        <!-- ============================ link4 ============================ -->
+        <link name="${prefix}_${finger_name}_link4">
+            <inertial>
+                <origin rpy="0 0 0"
+                    xyz="${link_com[side][fid][4][0]} ${link_com[side][fid][4][1]} ${link_com[side][fid][4][2]}" />
+                <mass value="${link_mass[grp][4]}" />
+                <inertia ixx="${link_inertia[grp][4]['ixx']}" ixy="${link_inertia[grp][4]['ixy']}"
+                    ixz="${link_inertia[grp][4]['ixz']}" iyy="${link_inertia[grp][4]['iyy']}"
+                    iyz="${link_inertia[grp][4]['iyz']}" izz="${link_inertia[grp][4]['izz']}" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${mesh_path}/${side}_finger${fid}_link4.STL" />
+                </geometry>
+                <material name="hand_color" />
+            </visual>
+            <xacro:if value="${collision_type == 'physics_solver'}">
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="${mesh_path}/${side}_finger${fid}_link4.STL" />
+                    </geometry>
+                </collision>
+            </xacro:if>
+        </link>
+
+        <joint name="${prefix}_${finger_name}_joint4" type="revolute">
+            <origin
+                xyz="${joint_xyz[side][fid][4][0]} ${joint_xyz[side][fid][4][1]} ${joint_xyz[side][fid][4][2]}"
+                rpy="${joint_rpy[side][fid][4][0]} ${joint_rpy[side][fid][4][1]} ${joint_rpy[side][fid][4][2]}" />
+            <parent link="${prefix}_${finger_name}_link3" />
+            <child link="${prefix}_${finger_name}_link4" />
+            <axis xyz="${axis_fid.get(4, joint_axis_default)[0]} ${axis_fid.get(4, joint_axis_default)[1]} ${axis_fid.get(4, joint_axis_default)[2]}" />
+            <limit lower="${joint_limit[fid][4][0]}" upper="${joint_limit[fid][4][1]}"
+                effort="${joint_limit[fid][4][2]}" velocity="${joint_limit[fid][4][3]}" />
+        </joint>
+
+        <!-- ============================= pad ============================= -->
+        <!-- Contact pad (real link with geometry + inertial). Naming per       -->
+        <!-- docs/naming_convention.hand.md §2.4: `_pad_link` suffix denotes a   -->
+        <!-- physical contact body, distinct from a virtual `_tip` frame.       -->
+        <!-- Mesh file keeps its historical `_tip_link.STL` filename.           -->
+        <link name="${prefix}_${finger_name}_pad_link">
+            <inertial>
+                <origin rpy="0 0 0"
+                    xyz="${link_com[side][fid][5][0]} ${link_com[side][fid][5][1]} ${link_com[side][fid][5][2]}" />
+                <mass value="${link_mass[grp][5]}" />
+                <inertia ixx="${link_inertia[grp][5]['ixx']}" ixy="${link_inertia[grp][5]['ixy']}"
+                    ixz="${link_inertia[grp][5]['ixz']}" iyy="${link_inertia[grp][5]['iyy']}"
+                    iyz="${link_inertia[grp][5]['iyz']}" izz="${link_inertia[grp][5]['izz']}" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${mesh_path}/${side}_finger${fid}_tip_link.STL" />
+                </geometry>
+                <material name="hand_color" />
+            </visual>
+            <xacro:if value="${collision_type == 'physics_solver'}">
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="${mesh_path}/${side}_finger${fid}_tip_link.STL" />
+                    </geometry>
+                </collision>
+            </xacro:if>
+        </link>
+
+        <joint name="${prefix}_${finger_name}_pad_joint" type="fixed">
+            <origin
+                xyz="${joint_xyz[side][fid][5][0]} ${joint_xyz[side][fid][5][1]} ${joint_xyz[side][fid][5][2]}"
+                rpy="0 0 0" />
+            <parent link="${prefix}_${finger_name}_link4" />
+            <child link="${prefix}_${finger_name}_pad_link" />
+        </joint>
+
+    </xacro:macro>
+</robot>

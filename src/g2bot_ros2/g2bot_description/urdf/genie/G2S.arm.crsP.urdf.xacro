@@ -1,0 +1,717 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- main xacro -->
+    <xacro:macro name="arm_l"
+        params="parent_link xyz_offset rpy_offset end_link visual_type collision_type mesh_dir app">
+        <!-- properties -->
+        <!-- 左臂 -->
+        <link
+            name="arm_l_link1">
+            <inertial>
+                <origin
+                    xyz="-0.00002 -0.00304 0.1404"
+                    rpy="0 0 0" />
+                <mass
+                    value="1.1854" />
+                <inertia
+                    ixx="0.00154684"
+                    ixy="0.0"
+                    ixz="0.0"
+                    iyy="0.00189515"
+                    iyz="0"
+                    izz="0.0011613" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link1_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="0 1 0 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx21_arm_l_joint1"
+            type="revolute">
+            <origin
+                xyz="${xyz_offset}"
+                rpy="${rpy_offset}" />
+            <parent
+                link="${parent_link}" />
+            <child
+                link="arm_l_link1" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-3.1067"
+                upper="3.1067"
+                effort="108"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_l_link2">
+            <inertial>
+                <origin
+                    xyz="0.00006 0.10012 0.00116"
+                    rpy="0 0 0" />
+                <mass
+                    value="1.3365" />
+                <inertia
+                    ixx="0.00387224"
+                    ixy="0.0"
+                    ixz="0.0"
+                    iyy="0.00140599"
+                    iyz="0.00016982"
+                    izz="0.00361228" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link2_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="0 0 1 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx22_arm_l_joint2"
+            type="revolute">
+            <origin
+                xyz="0 0 0.14435"
+                rpy="1.5708 0 0" />
+            <parent
+                link="arm_l_link1" />
+            <child
+                link="arm_l_link2" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-2.0944"
+                upper="2.0944"
+                effort="108"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_l_link3">
+            <inertial>
+                <origin
+                    xyz="0.01084 -0.00439 0.3605"
+                    rpy="0 0 0" />
+                <mass
+                    value="1.2008" />
+                <inertia
+                    ixx="0.00585912"
+                    ixy="0.0"
+                    ixz="-0.0004428"
+                    iyy="0.00598561"
+                    iyz="0.00017532"
+                    izz="0.00079937" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link3_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="1 0 0 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx23_arm_l_joint3"
+            type="revolute">
+            <origin
+                xyz="0 0 0"
+                rpy="-1.5708 0 0" />
+            <parent
+                link="arm_l_link2" />
+            <child
+                link="arm_l_link3" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-3.1067"
+                upper="3.1067"
+                effort="66"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_l_link4">
+            <inertial>
+                <origin
+                    xyz="-0.01322 0.08785 0.0064"
+                    rpy="0 0 0" />
+                <mass
+                    value="1.0219" />
+                <inertia
+                    ixx="0.00120149"
+                    ixy="0.0000831"
+                    ixz="-0.00003789"
+                    iyy="0.00051212"
+                    iyz="0.00025716"
+                    izz="0.0011273" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link4_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="0 1 0 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx24_arm_l_joint4"
+            type="revolute">
+            <origin
+                xyz="0.015 0 0.4"
+                rpy="1.5708 0 0" />
+            <parent
+                link="arm_l_link3" />
+            <child
+                link="arm_l_link4" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-2.5307"
+                upper="1.0472"
+                effort="66"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_l_link5">
+            <inertial>
+                <origin
+                    xyz="-0.000557 -0.001764 0.2174"
+                    rpy="0 0 0" />
+                <mass
+                    value="0.7282" />
+                <inertia
+                    ixx="0.001096406"
+                    ixy="0"
+                    ixz="0"
+                    iyy="0.000895149"
+                    iyz="0"
+                    izz="0.000551009" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link5_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="0 0 1 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx25_arm_l_joint5"
+            type="revolute">
+            <origin
+                xyz="-0.015 0 0"
+                rpy="-1.5708 0 0" />
+            <parent
+                link="arm_l_link4" />
+            <child
+                link="arm_l_link5" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-3.1067"
+                upper="3.1067"
+                effort="18"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_l_link6">
+            <inertial>
+                <origin
+                    xyz="-0.008318 0.000129 -0.000055"
+                    rpy="0 0 0" />
+                <mass
+                    value="0.5398" />
+                <inertia
+                    ixx="0.000149348"
+                    ixy="0"
+                    ixz="0"
+                    iyy="0.000158678"
+                    iyz="0"
+                    izz="0.000163287" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link6_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="1 0 0 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx26_arm_l_joint6"
+            type="revolute">
+            <origin
+                xyz="0 0 0.291"
+                rpy="1.5708 0 0" />
+            <parent
+                link="arm_l_link5" />
+            <child
+                link="arm_l_link6" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-1.0472"
+                upper="1.0472"
+                effort="18"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_l_link7">
+            <inertial>
+                <origin
+                    xyz="0.03415 0.0 -0.0209"
+                    rpy="0 0 0" />
+                <mass
+                    value="0.3905" />
+                <inertia
+                    ixx="0.00003754"
+                    ixy="0"
+                    ixz="0"
+                    iyy="0.00006488"
+                    iyz="0"
+                    izz="0.00004808" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link7_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="0 1 0 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx27_arm_l_joint7"
+            type="revolute">
+            <origin
+                xyz="0 0 0"
+                rpy="1.5708 0 1.5708" />
+            <parent
+                link="arm_l_link6" />
+            <child
+                link="arm_l_link7" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-1.5708"
+                upper="1.5708"
+                effort="18"
+                velocity="3.1416" />
+        </joint>
+        <link name="${end_link}" />
+        <joint name="arm_l_end_joint" type="fixed">
+            <parent link="arm_l_link7" />
+            <child link="${end_link}" />
+            <origin xyz="0.059 0.0 0.0" rpy="3.1416 -1.5708 0" />
+            <axis xyz="0 0 1" />
+        </joint>
+    </xacro:macro>
+
+    <!-- 右臂 -->
+    <xacro:macro name="arm_r"
+        params="parent_link xyz_offset rpy_offset end_link visual_type collision_type mesh_dir app">
+        <!-- properties -->
+        <!-- 右臂 -->
+        <link
+            name="arm_r_link1">
+            <inertial>
+                <origin
+                    xyz="-0.00002 -0.00304 0.1404"
+                    rpy="0 0 0" />
+                <mass
+                    value="1.1854" />
+                <inertia
+                    ixx="0.00154684"
+                    ixy="0.0"
+                    ixz="0.0"
+                    iyy="0.00189515"
+                    iyz="0"
+                    izz="0.0011613" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link1_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="0 1 0 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx61_arm_r_joint1"
+            type="revolute">
+            <origin
+                xyz="${xyz_offset}"
+                rpy="${rpy_offset}" />
+            <parent
+                link="${parent_link}" />
+            <child
+                link="arm_r_link1" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-3.1067"
+                upper="3.1067"
+                effort="108"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_r_link2">
+            <inertial>
+                <origin
+                    xyz="0.00006 0.10012 0.00116"
+                    rpy="0 0 0" />
+                <mass
+                    value="1.3365" />
+                <inertia
+                    ixx="0.00387224"
+                    ixy="0.0"
+                    ixz="0.0"
+                    iyy="0.00140599"
+                    iyz="0.00016982"
+                    izz="0.00361228" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link2_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="0 0 1 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx62_arm_r_joint2"
+            type="revolute">
+            <origin
+                xyz="0 0 0.14435"
+                rpy="1.5708 0 0" />
+            <parent
+                link="arm_r_link1" />
+            <child
+                link="arm_r_link2" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-2.0944"
+                upper="2.0944"
+                effort="108"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_r_link3">
+            <inertial>
+                <origin
+                    xyz="0.01084 -0.00439 0.3605"
+                    rpy="0 0 0" />
+                <mass
+                    value="1.2008" />
+                <inertia
+                    ixx="0.00585912"
+                    ixy="0.0"
+                    ixz="-0.0004428"
+                    iyy="0.00598561"
+                    iyz="0.00017532"
+                    izz="0.00079937" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link3_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="1 0 0 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx63_arm_r_joint3"
+            type="revolute">
+            <origin
+                xyz="0 0 0"
+                rpy="-1.5708 0 0" />
+            <parent
+                link="arm_r_link2" />
+            <child
+                link="arm_r_link3" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-3.1067"
+                upper="3.1067"
+                effort="66"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_r_link4">
+            <inertial>
+                <origin
+                    xyz="-0.01322 0.08785 0.0064"
+                    rpy="0 0 0" />
+                <mass
+                    value="1.0219" />
+                <inertia
+                    ixx="0.00120149"
+                    ixy="0.0000831"
+                    ixz="-0.00003789"
+                    iyy="0.00051212"
+                    iyz="0.00025716"
+                    izz="0.0011273" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link4_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="0 1 0 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx64_arm_r_joint4"
+            type="revolute">
+            <origin
+                xyz="0.015 0 0.4"
+                rpy="1.5708 0 0" />
+            <parent
+                link="arm_r_link3" />
+            <child
+                link="arm_r_link4" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-2.5307"
+                upper="1.0472"
+                effort="66"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_r_link5">
+            <inertial>
+                <origin
+                    xyz="-0.000557 -0.001764 0.2174"
+                    rpy="0 0 0" />
+                <mass
+                    value="0.7282" />
+                <inertia
+                    ixx="0.001096406"
+                    ixy="0"
+                    ixz="0"
+                    iyy="0.000895149"
+                    iyz="0"
+                    izz="0.000551009" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link5_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="0 0 1 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx65_arm_r_joint5"
+            type="revolute">
+            <origin
+                xyz="-0.015 0 0"
+                rpy="-1.5708 0 0" />
+            <parent
+                link="arm_r_link4" />
+            <child
+                link="arm_r_link5" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-3.1067"
+                upper="3.1067"
+                effort="18"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_r_link6">
+            <inertial>
+                <origin
+                    xyz="-0.008318 0.000129 -0.000055"
+                    rpy="0 0 0" />
+                <mass
+                    value="0.5398" />
+                <inertia
+                    ixx="0.000149348"
+                    ixy="0"
+                    ixz="0"
+                    iyy="0.000158678"
+                    iyz="0"
+                    izz="0.000163287" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link6_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="1 0 0 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx66_arm_r_joint6"
+            type="revolute">
+            <origin
+                xyz="0 0 0.291"
+                rpy="1.5708 0 0" />
+            <parent
+                link="arm_r_link5" />
+            <child
+                link="arm_r_link6" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-1.0472"
+                upper="1.0472"
+                effort="18"
+                velocity="3.1416" />
+        </joint>
+        <link
+            name="arm_r_link7">
+            <inertial>
+                <origin
+                    xyz="0.03415 0.0 -0.0209"
+                    rpy="0 0 0" />
+                <mass
+                    value="0.3905" />
+                <inertia
+                    ixx="0.00003754"
+                    ixy="0"
+                    ixz="0"
+                    iyy="0.00006488"
+                    iyz="0"
+                    izz="0.00004808" />
+            </inertial>
+            <visual>
+                <origin
+                    xyz="0 0 0"
+                    rpy="0 0 0" />
+                <geometry>
+                    <mesh
+                        filename="${mesh_dir}/arm/crsP/Link7_L.STL" />
+                </geometry>
+                <material
+                    name="">
+                    <color
+                        rgba="0 1 0 1" />
+                </material>
+            </visual>
+        </link>
+        <joint
+            name="idx67_arm_r_joint7"
+            type="revolute">
+            <origin
+                xyz="0 0 0"
+                rpy="1.5708 0 1.5708" />
+            <parent
+                link="arm_r_link6" />
+            <child
+                link="arm_r_link7" />
+            <axis
+                xyz="0 0 1" />
+            <limit
+                lower="-1.5708"
+                upper="1.5708"
+                effort="18"
+                velocity="3.1416" />
+        </joint>
+        <link name="${end_link}" />
+        <joint name="arm_r_end_joint" type="fixed">
+            <parent link="arm_r_link7" />
+            <child link="${end_link}" />
+            <origin xyz="0.059 0.0 0.0" rpy="3.1416 -1.5708 0" />
+            <axis xyz="0 0 1" />
+        </joint>
+    </xacro:macro>
+</robot>

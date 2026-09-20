@@ -1,0 +1,839 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- main xacro -->
+  <xacro:macro name="arm_l" params="parent_link xyz_offset rpy_offset end_link visual_type collision_type mesh_dir app">
+    <!-- properties -->
+
+    <!-- Arm -->
+    <link name="arm_l_link1">
+      <inertial>
+        <origin
+          xyz="-0.000184301	0.001568154	0.172803911"
+          rpy="0 0 0" />
+        <mass
+          value="2.17" />
+        <inertia
+          ixx="0.003322491"
+          ixy="0.000000319"
+          ixz="-0.00000048"
+          iyy="0.002609043"
+          iyz="-0.000014858"
+          izz="0.003176913" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_l_link1.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_l_link1_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_l_link1.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_l_link1_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_l_link1.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_l_link1_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx21_arm_l_joint1" type="revolute">
+      <origin
+        xyz="${xyz_offset}"
+        rpy="${rpy_offset}" />
+      <parent link="${parent_link}" />
+      <child link="arm_l_link1" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-3.0718"
+        upper="3.0718"
+        effort="108"
+        velocity="3.3" />
+    </joint>
+    <link name="arm_l_link2">
+      <inertial>
+        <origin
+          xyz="-0.000016932	0.106689462	-0.00179469"
+          rpy="0 0 0" />
+        <mass
+          value="1.9" />
+        <inertia
+          ixx="0.00779803"
+          ixy="-0.000002265"
+          ixz="-0.00000248"
+          iyy="0.00305507"
+          iyz="0.000492831"
+          izz="0.006748185" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_l_link2.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_l_link2_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_l_link2.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:if value="${collision_type == 'coarse'}">
+        <collision name="arm_l_link2_coarse_0">
+          <origin rpy="0.0 0.0 0.0" xyz="-0.000244787 0.115158566 -0.008984615" />
+          <geometry>
+            <sphere radius="0.08" />
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_l_link2_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_l_link2.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_l_link2_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx22_arm_l_joint2" type="revolute">
+      <origin
+        xyz="0 0 0.1745"
+        rpy="1.5708 0 0" />
+      <parent link="arm_l_link1" />
+      <child link="arm_l_link2" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-2.0595"
+        upper="2.0595"
+        effort="108"
+        velocity="3.3" />
+    </joint>
+    <link name="arm_l_link3">
+      <inertial>
+        <origin
+          xyz="0.008226598	-0.001273425	0.311389109"
+          rpy="0 0 0" />
+        <mass
+          value="1.86" />
+        <inertia
+          ixx="0.006412854"
+          ixy="0.000009094"
+          ixz="0.000347653"
+          iyy="0.005915953"
+          iyz="-0.000023139"
+          izz="0.002765828" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_l_link3.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_l_link3_visual_0">
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_l_link3.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_l_link3_convex_0">
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_l_link3.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_l_link3_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx23_arm_l_joint3" type="revolute">
+      <origin
+        xyz="0 0 0"
+        rpy="-1.5708 0 0" />
+      <parent link="arm_l_link2" />
+      <child link="arm_l_link3" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-3.0718"
+        upper="3.0718"
+        effort="35"
+        velocity="5.2" />
+    </joint>
+    <link name="arm_l_link4">
+      <inertial>
+        <origin
+          xyz="-0.009241652	0.084042407	0.002171786"
+          rpy="0 0 0" />
+        <mass
+          value="1.027" />
+        <inertia
+          ixx="0.002946389"
+          ixy="-0.000122034"
+          ixz="0.000024179"
+          iyy="0.001409607"
+          iyz="-0.000220295"
+          izz="0.002444466" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_l_link4.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_l_link4_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_l_link4.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_l_link4_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_l_link4.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_l_link4_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx24_arm_l_joint4" type="revolute">
+      <origin
+        xyz="0.0105 0 0.332"
+        rpy="1.5708 0 0" />
+      <parent link="arm_l_link3" />
+      <child link="arm_l_link4" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-2.4959"
+        upper="1.0123"
+        effort="35"
+        velocity="5.2" />
+    </joint>
+    <link name="arm_l_link5">
+      <inertial>
+        <origin
+          xyz="-0.000756035	0.000722914	0.191236396"
+          rpy="0 0 0" />
+        <mass
+          value="1.276" />
+        <inertia
+          ixx="0.002413493"
+          ixy="-0.000038074"
+          ixz="-0.00004536"
+          iyy="0.002002464"
+          iyz="0.000066234"
+          izz="0.001586933" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_l_link5.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_l_link5_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_l_link5.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_l_link5_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_l_link5.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_l_link5_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx25_arm_l_joint5" type="revolute">
+      <origin
+        xyz="-0.0105 0 0"
+        rpy="-1.5708 0 0" />
+      <parent link="arm_l_link4" />
+      <child link="arm_l_link5" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-3.0718"
+        upper="3.0718"
+        effort="35"
+        velocity="5.3" />
+    </joint>
+    <link name="arm_l_link6">
+      <inertial>
+        <origin
+          xyz="-0.003932433	0.000061837	-0.000158947"
+          rpy="0 0 0" />
+        <mass
+          value="0.813" />
+        <inertia
+          ixx="0.000509166"
+          ixy="0.000000955"
+          ixz="0.000001806"
+          iyy="0.000667287"
+          iyz="0.000000456"
+          izz="0.00065915" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_l_link6.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_l_link6_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_l_link6.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_l_link6_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_l_link6.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_l_link6_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx26_arm_l_joint6" type="revolute">
+      <origin
+        xyz="0 0 0.278"
+        rpy="1.5708 0 0" />
+      <parent link="arm_l_link5" />
+      <child link="arm_l_link6" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-1.0123"
+        upper="1.0123"
+        effort="18"
+        velocity="5.3" />
+    </joint>
+    <link name="arm_l_link7">
+      <inertial>
+        <origin
+          xyz="0.052854064	0.000277108	-0.001539537"
+          rpy="0 0 0" />
+        <mass
+          value="0.312" />
+        <inertia
+          ixx="0.000433251"
+          ixy="0.000000375"
+          ixz="0.000038784"
+          iyy="0.00067633"
+          iyz="-0.000002651"
+          izz="0.000451181" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_l_link7.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_l_link7_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_l_link7.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_l_link7_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_l_link7.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_l_link7_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx27_arm_l_joint7" type="revolute">
+      <origin
+        xyz="0 0 0"
+        rpy="1.5708 0 1.5708" />
+      <parent link="arm_l_link6" />
+      <child link="arm_l_link7" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-1.5359"
+        upper="1.5359"
+        effort="18"
+        velocity="5.3" />
+    </joint>
+    <link name="${end_link}" />
+    <joint name='arm_l_end_joint' type='fixed'>
+      <origin xyz="0.09 0.0 0.0" rpy="${PI} -${PI_2} 0" />
+      <parent link="arm_l_link7" />
+      <child link="${end_link}" />
+    </joint>
+
+  </xacro:macro>
+
+  <!-- main xacro -->
+  <xacro:macro name="arm_r" params="parent_link xyz_offset rpy_offset end_link visual_type collision_type mesh_dir app">
+    <!-- properties -->
+
+    <!-- Arm -->
+    <link name="arm_r_link1">
+      <inertial>
+        <origin
+          xyz="0.000186337 -0.001542822 0.172784077"
+          rpy="0 0 0" />
+        <mass
+          value="2.17" />
+        <inertia
+          ixx="0.003293742"
+          ixy="0.000000294"
+          ixz="0.000000479"
+          iyy="0.00258807"
+          iyz="0.000014957"
+          izz="0.003148174" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_r_link1.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_r_link1_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_r_link1.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_r_link1_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_r_link1.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_r_link1_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx61_arm_r_joint1" type="revolute">
+      <origin
+        xyz="${xyz_offset}"
+        rpy="${rpy_offset}" />
+      <parent link="${parent_link}" />
+      <child link="arm_r_link1" />
+      <axis xyz="0 0 1" />
+      <limit
+        lower="-3.0718"
+        upper="3.0718"
+        effort="108"
+        velocity="3.3" />
+    </joint>
+    <link name="arm_r_link2">
+      <inertial>
+        <origin
+          xyz="0.000016928 0.106691378 0.001794536"
+          rpy="0 0 0" />
+        <mass
+          value="1.9" />
+        <inertia
+          ixx="0.00779827"
+          ixy="0.000002265"
+          ixz="-0.00000248"
+          iyy="0.003055175"
+          iyz="-0.000492837"
+          izz="0.006748425" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_r_link2.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_r_link2_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_r_link2.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_r_link2_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_r_link2.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_r_link2_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx62_arm_r_joint2" type="revolute">
+      <origin
+        xyz="0 0 0.1745"
+        rpy="${PI_2} 0 0" />
+      <parent link="arm_r_link1" />
+      <child link="arm_r_link2" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-2.0595"
+        upper="2.0595"
+        effort="108"
+        velocity="3.3" />
+    </joint>
+    <link name="arm_r_link3">
+      <inertial>
+        <origin
+          xyz="0.009022338 0.000900475 0.312063927"
+          rpy="0 0 0" />
+        <mass
+          value="1.86" />
+        <inertia
+          ixx="0.006355919"
+          ixy="0.000015995"
+          ixz="0.000299449"
+          iyy="0.005816094"
+          iyz="0.000046832"
+          izz="0.002691146" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_r_link3.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_r_link3_visual_0">
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_r_link3.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_r_link3_convex_0">
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_r_link3.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_r_link3_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx63_arm_r_joint3" type="revolute">
+      <origin
+        xyz="0 0 0"
+        rpy="-${PI_2} 0 0" />
+      <parent link="arm_r_link2" />
+      <child link="arm_r_link3" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-3.0718"
+        upper="3.0718"
+        effort="35"
+        velocity="5.2" />
+    </joint>
+    <link name="arm_r_link4">
+      <inertial>
+        <origin
+          xyz="-0.009272377 0.084042199 -0.00216935"
+          rpy="0 0 0" />
+        <mass
+          value="1.027" />
+        <inertia
+          ixx="0.002946101"
+          ixy="-0.000118504"
+          ixz="-0.000024806"
+          iyy="0.001409344"
+          iyz="0.00022011"
+          izz="0.002444554" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_r_link4.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_r_link4_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_r_link4.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_r_link4_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_r_link4.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_r_link4_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx64_arm_r_joint4" type="revolute">
+      <origin
+        xyz="0.0105 0 0.332"
+        rpy="${PI_2} 0 0" />
+      <parent link="arm_r_link3" />
+      <child link="arm_r_link4" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-2.4959"
+        upper="1.0123"
+        effort="35"
+        velocity="5.2" />
+    </joint>
+    <link name="arm_r_link5">
+      <inertial>
+        <origin
+          xyz="-0.000776373 -0.000803696 0.191266219"
+          rpy="0 0 0" />
+        <mass
+          value="1.276" />
+        <inertia
+          ixx="0.00240951"
+          ixy="0.00004151"
+          ixz="-0.000043111"
+          iyy="0.002001148"
+          iyz="-0.000064911"
+          izz="0.001582656" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_r_link5.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_r_link5_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_r_link5.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_r_link5_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_r_link5.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_r_link5_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx65_arm_r_joint5" type="revolute">
+      <origin
+        xyz="-0.0105 0 0"
+        rpy="-${PI_2} 0 0" />
+      <parent link="arm_r_link4" />
+      <child link="arm_r_link5" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-3.0718"
+        upper="3.0718"
+        effort="35"
+        velocity="5.3" />
+    </joint>
+    <link name="arm_r_link6">
+      <inertial>
+        <origin
+          xyz="-0.003932145 -0.000060365 0.000158935"
+          rpy="0 0 0" />
+        <mass
+          value="0.813" />
+        <inertia
+          ixx="0.000509171"
+          ixy="-0.000000892"
+          ixz="-0.000001806"
+          iyy="0.000667301"
+          iyz="0.000000456"
+          izz="0.000659162" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_r_link6.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_r_link6_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_r_link6.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_r_link6_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_r_link6.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_r_link6_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint name="idx66_arm_r_joint6" type="revolute">
+      <origin
+        xyz="0 0 0.278"
+        rpy="${PI_2} 0 0" />
+      <parent link="arm_r_link5" />
+      <child link="arm_r_link6" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-1.0123"
+        upper="1.0123"
+        effort="18"
+        velocity="5.3" />
+    </joint>
+    <link name="arm_r_link7">
+      <inertial>
+        <origin
+          xyz="0.052862978 -0.000632229 -0.00134628"
+          rpy="0 0 0" />
+        <mass
+          value="0.312" />
+        <inertia
+          ixx="0.000432926"
+          ixy="-0.000003941"
+          ixz="0.000039746"
+          iyy="0.000676021"
+          iyz="0.000002882"
+          izz="0.000450533" />
+      </inertial>
+      <visual name="default_visual">
+        <geometry>
+          <mesh filename="${mesh_dir}/arm/crsB/arm_r_link7.STL" />
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="default" />
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="arm_r_link7_visual_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/arm_r_link7.STL" />
+          </geometry>
+        </collision>
+      </xacro:if>
+
+      <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+        <collision name="arm_r_link7_convex_0">
+          <geometry>
+            <mesh filename="${mesh_dir}/arm/crsB/convex/arm_r_link7.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="arm_r_link7_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <link name="${end_link}" />
+    <joint name="idx67_arm_r_joint7" type="revolute">
+      <origin
+        xyz="0 0 0"
+        rpy="${PI_2} 0 ${PI_2}" />
+      <parent link="arm_r_link6" />
+      <child link="arm_r_link7" />
+      <axis
+        xyz="0 0 1" />
+      <limit
+        lower="-1.5359"
+        upper="1.5359"
+        effort="18"
+        velocity="5.3" />
+    </joint>
+    <joint name='arm_r_end_joint' type='fixed'>
+      <origin xyz="0.09 0.0 0.0" rpy="${PI} -${PI_2} 0" />
+      <parent link="arm_r_link7" />
+      <child link="${end_link}" />
+    </joint>
+
+  </xacro:macro>
+</robot>

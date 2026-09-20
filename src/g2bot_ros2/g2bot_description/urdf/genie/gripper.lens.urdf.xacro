@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro
+    name="gripper_l"
+    params="tf_prefix parent_link xyz_offset rpy_offset mesh_dir">
+
+    <link
+      name="gripper_l_base_link">
+      <inertial>
+        <origin
+        xyz="0.003152 0.001788 0.038605"
+        rpy="0 0 0" />
+        <mass
+          value="0.250834" />
+        <inertia
+          ixx="0.001020"
+          ixy="-0.000657"
+          ixz="-0.000397"
+          iyy="-0.000397"
+          iyz="-0.000229"
+          izz="0.002307" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/base_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <collision name="gripper_l_base_link_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision01.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_01">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision02.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_02">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision03.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_03">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision04.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_04">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision05.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_05">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision06.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_06">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision07.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_07">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision08.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_08">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision09.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_l_base_link_convex_00" />
+        <convex name="gripper_l_base_link_convex_01" />
+        <convex name="gripper_l_base_link_convex_02" />
+        <convex name="gripper_l_base_link_convex_03" />
+        <convex name="gripper_l_base_link_convex_04" />
+        <convex name="gripper_l_base_link_convex_05" />
+        <convex name="gripper_l_base_link_convex_06" />
+        <convex name="gripper_l_base_link_convex_07" />
+        <convex name="gripper_l_base_link_convex_08" />
+      </collision_checking>
+    </link>
+
+    <!-- Gripper Connector -->
+    <joint
+      name="idx51_ee_l_joint"
+      type="fixed">
+      <origin
+        xyz="${xyz_offset}"
+        rpy="${rpy_offset}" />
+      <parent
+        link="${parent_link}" />
+      <child
+        link="gripper_l_base_link" />
+      <axis
+        xyz="0 0 0" />
+    </joint>
+
+    <link name="gripper_l_inner_adhesion_pad">
+      <collision name="gripper_l_inner_adhesion_pad_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision10.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_inner_adhesion_pad_convex_01">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision11.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_inner_adhesion_pad_convex_02">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision12.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_l_inner_adhesion_pad_convex_00" />
+        <convex name="gripper_l_inner_adhesion_pad_convex_01" />
+        <convex name="gripper_l_inner_adhesion_pad_convex_02" />
+      </collision_checking>
+    </link>
+    <joint name="idx52_gripper_l_inner_adhesion_pad_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <parent link="gripper_l_base_link" />
+      <child link="gripper_l_inner_adhesion_pad" />
+    </joint>
+
+    <link name="gripper_l_outer_adhesion_pad">
+      <collision name="gripper_l_outer_adhesion_pad_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision13.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_outer_adhesion_pad_convex_01">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision14.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_outer_adhesion_pad_convex_02">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision15.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_l_outer_adhesion_pad_convex_00" />
+        <convex name="gripper_l_outer_adhesion_pad_convex_01" />
+        <convex name="gripper_l_outer_adhesion_pad_convex_02" />
+      </collision_checking>
+    </link>
+    <joint name="idx53_gripper_l_outer_adhesion_pad_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <parent link="gripper_l_base_link" />
+      <child link="gripper_l_outer_adhesion_pad" />
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro
+    name="gripper_r"
+    params="tf_prefix parent_link xyz_offset rpy_offset mesh_dir">
+
+    <link
+      name="gripper_r_base_link">
+      <inertial>
+        <origin
+          xyz="0.003152 0.001788 0.038605"
+          rpy="0 0 0" />
+        <mass
+          value="0.250834" />
+        <inertia
+          ixx="0.001020"
+          ixy="-0.000657"
+          ixz="-0.000397"
+          iyy="-0.000397"
+          iyz="-0.000229"
+          izz="0.002307" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/base_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <collision name="gripper_r_base_link_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision01.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_01">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision02.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_02">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision03.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_03">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision04.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_04">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision05.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_05">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision06.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_06">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision07.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_07">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision08.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_08">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision09.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_r_base_link_convex_00" />
+        <convex name="gripper_r_base_link_convex_01" />
+        <convex name="gripper_r_base_link_convex_02" />
+        <convex name="gripper_r_base_link_convex_03" />
+        <convex name="gripper_r_base_link_convex_04" />
+        <convex name="gripper_r_base_link_convex_05" />
+        <convex name="gripper_r_base_link_convex_06" />
+        <convex name="gripper_r_base_link_convex_07" />
+        <convex name="gripper_r_base_link_convex_08" />
+      </collision_checking>
+    </link>
+
+    <!-- Gripper Connector -->
+    <joint
+      name="idx91_ee_r_joint"
+      type="fixed">
+      <origin
+        xyz="${xyz_offset}"
+        rpy="${rpy_offset}" />
+      <parent
+        link="${parent_link}" />
+      <child
+        link="gripper_r_base_link" />
+      <axis
+        xyz="0 0 0" />
+    </joint>
+
+    <link name="gripper_r_inner_adhesion_pad">
+      <collision name="gripper_r_inner_adhesion_pad_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision10.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_inner_adhesion_pad_convex_01">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision11.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_inner_adhesion_pad_convex_02">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision12.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_r_inner_adhesion_pad_convex_00" />
+        <convex name="gripper_r_inner_adhesion_pad_convex_01" />
+        <convex name="gripper_r_inner_adhesion_pad_convex_02" />
+      </collision_checking>
+    </link>
+    <joint name="idx92_gripper_r_inner_adhesion_pad_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <parent link="gripper_r_base_link" />
+      <child link="gripper_r_inner_adhesion_pad" />
+    </joint>
+
+    <link name="gripper_r_outer_adhesion_pad">
+      <collision name="gripper_r_outer_adhesion_pad_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision13.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_outer_adhesion_pad_convex_01">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision14.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_outer_adhesion_pad_convex_02">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/lens/convex/base_link_collision15.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_r_outer_adhesion_pad_convex_00" />
+        <convex name="gripper_r_outer_adhesion_pad_convex_01" />
+        <convex name="gripper_r_outer_adhesion_pad_convex_02" />
+      </collision_checking>
+    </link>
+    <joint name="idx93_gripper_r_outer_adhesion_pad_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
+      <parent link="gripper_r_base_link" />
+      <child link="gripper_r_outer_adhesion_pad" />
+    </joint>
+
+  </xacro:macro>
+</robot>

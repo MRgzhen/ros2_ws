@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<robot name="G2S" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="G2S"
+    params="body arm lgripper rgripper visual_type collision_type mesh_dir app">
+    <!-- properties -->
+    <xacro:property name="left_arm_end_link" value="arm_l_end_link" />
+    <xacro:property name="right_arm_end_link" value="arm_r_end_link" />
+
+    <!-- import robot components -->
+    <!-- body -->
+    <xacro:include ns="t0" filename="G2S.body.t0.urdf.xacro" />
+    <xacro:include ns="t0p5" filename="G2S.body.t0p5.urdf.xacro" />
+
+    <!-- arm -->
+    <xacro:include ns="crsP" filename="G2S.arm.crsP.urdf.xacro" />
+    <xacro:include ns="crsPv2" filename="G2S.arm.crsPv2.urdf.xacro" />
+
+    <!-- assemble robot -->
+    <xacro:if value="${'t0' == body}">
+      <xacro:t0.body
+        mesh_dir="${mesh_dir}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        app="${app}" />
+    </xacro:if>
+    <xacro:if value="${'t0p5' == body}">
+      <xacro:t0p5.body
+        mesh_dir="${mesh_dir}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        app="${app}" />
+    </xacro:if>
+
+    <!-- ======================== arm ======================== -->
+    <!-- crs -->
+    <xacro:if value="${'crsP' == arm}">
+      <xacro:crsP.arm_l
+        parent_link="arm_l_base_link"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 0"
+        end_link="${left_arm_end_link}"
+        mesh_dir="${mesh_dir}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        app="${app}" />
+      <xacro:crsP.arm_r
+        parent_link="arm_r_base_link"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 0"
+        end_link="${right_arm_end_link}"
+        mesh_dir="${mesh_dir}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        app="${app}" />
+    </xacro:if>
+    <xacro:if value="${'crsPv2' == arm}">
+      <xacro:crsPv2.arm_l
+        parent_link="arm_l_base_link"
+        xyz_offset="0 0 0.046350000000001"
+        rpy_offset="0 0 0"
+        end_link="${left_arm_end_link}"
+        mesh_dir="${mesh_dir}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        app="${app}" />
+      <xacro:crsPv2.arm_r
+        parent_link="arm_r_base_link"
+        xyz_offset="0 0 0.046350000000001"
+        rpy_offset="0 0 0"
+        end_link="${right_arm_end_link}"
+        mesh_dir="${mesh_dir}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        app="${app}" />
+    </xacro:if>
+
+
+  </xacro:macro>
+</robot>

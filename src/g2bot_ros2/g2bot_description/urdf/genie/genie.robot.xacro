@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<robot name="genie"
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- static common properties -->
+  <xacro:include filename="common_properties.xacro" />
+
+  <!-- launch args -->
+  <xacro:arg name="robot_model" default="G2" />
+  <xacro:arg name="arm" default="crs" />
+  <!-- 上游默认值为 "T2"（大写），但 G2.urdf.xacro 按小写 t1/t2/t2v2 分发，
+       大写会导致躯干整段不生成，此处修正为小写 -->
+  <xacro:arg name="body" default="t2" />
+  <xacro:arg name="lgripper" default="omnipicker" />
+  <xacro:arg name="rgripper" default="omnipicker" />
+  <!-- application -->
+  <xacro:arg name="app" default="none" /> <!-- none, mc, navigation, freespace -->
+  <!-- use for mujoco conversion fromurdf to xml -->
+  <xacro:arg name="mujoco" default="false" /> <!-- true, false -->
+  <!-- mesh directory -->
+  <xacro:arg name="mesh_dir" default="package://${package_name}/meshes" />
+  <!-- visual type -->
+  <xacro:arg name="visual_type" default="stl" /> <!-- fbx, stl -->
+  <!-- collision type -->
+  <xacro:arg name="collision_type" default="fine" /> <!-- visual, coarse, fine -->
+
+  <!-- dynamic properties -->
+  <xacro:property name="robot_model" value="$(arg robot_model)" />
+  <xacro:property name="arm" value="$(arg arm)" />
+  <xacro:property name="body" value="$(arg body)" />
+  <xacro:property name="lgripper" value="$(arg lgripper)" />
+  <xacro:property name="rgripper" value="$(arg rgripper)" />
+  <xacro:property name="app" value="$(arg app)" />
+  <xacro:property name="mujoco" value="$(arg mujoco)" />
+  <xacro:property name="visual_type" value="$(arg visual_type)" />
+  <xacro:property name="collision_type" value="$(arg collision_type)" />
+  <xacro:property name="mesh_dir" value="$(arg mesh_dir)" />
+
+  <xacro:if value="${'true' == mujoco}">
+    <mujoco>
+      <compiler strippath="false" discardvisual="false" inertiafromgeom="false" fusestatic="false" />
+    </mujoco>
+  </xacro:if>
+  <!-- robot -->
+  <!-- G1 -->
+  <xacro:if value="${'G1' == robot_model}">
+    <xacro:include filename="G1.urdf.xacro" />
+    <xacro:G1
+      lgripper="${lgripper}"
+      rgripper="${rgripper}"
+      app="${app}"
+      visual_type="${visual_type}"
+      collision_type="${collision_type}"
+      mesh_dir="${mesh_dir}"
+    />
+  </xacro:if>
+
+  <!-- G2 -->
+  <xacro:if value="${'G2' == robot_model}">
+    <xacro:include filename="G2.urdf.xacro" />
+    <xacro:G2
+      lgripper="${lgripper}"
+      rgripper="${rgripper}"
+      arm="${arm}"
+      body="${body}"
+      app="${app}"
+      visual_type="${visual_type}"
+      collision_type="${collision_type}"
+      mesh_dir="${mesh_dir}"
+    />
+  </xacro:if>
+
+  <!-- G2L -->
+  <xacro:if value="${'G2L' == robot_model}">
+    <xacro:include filename="G2L.urdf.xacro" />
+    <xacro:G2L
+      lgripper="${lgripper}"
+      rgripper="${rgripper}"
+      arm="${arm}"
+      body="${body}"
+      app="${app}"
+      visual_type="${visual_type}"
+      collision_type="${collision_type}"
+      mesh_dir="${mesh_dir}"
+    />
+  </xacro:if>
+
+  <!-- G2H -->
+  <xacro:if value="${'G2H' == robot_model}">
+    <xacro:include filename="G2H.urdf.xacro" />
+    <xacro:G2H
+      lgripper="${lgripper}"
+      rgripper="${rgripper}"
+      arm="${arm}"
+      body="${body}"
+      app="${app}"
+      visual_type="${visual_type}"
+      collision_type="${collision_type}"
+      mesh_dir="${mesh_dir}"
+    />
+  </xacro:if>
+
+  <!-- G2S -->
+  <xacro:if value="${'G2S' == robot_model}">
+    <xacro:include filename="G2S.urdf.xacro" />
+    <xacro:G2S
+      lgripper="${lgripper}"
+      rgripper="${rgripper}"
+      arm="${arm}"
+      body="${body}"
+      app="${app}"
+      visual_type="${visual_type}"
+      collision_type="${collision_type}"
+      mesh_dir="${mesh_dir}"
+    />
+  </xacro:if>
+
+  <!-- G2U -->
+  <xacro:if value="${'G2U' == robot_model}">
+    <xacro:include filename="G2U.urdf.xacro" />
+    <xacro:G2U
+      lgripper="${lgripper}"
+      rgripper="${rgripper}"
+      arm="${arm}"
+      body="${body}"
+      app="${app}"
+      visual_type="${visual_type}"
+      collision_type="${collision_type}"
+      mesh_dir="${mesh_dir}"
+    />
+  </xacro:if>
+</robot>

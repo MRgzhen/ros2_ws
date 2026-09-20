@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot name="g2bot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- 是否启用 Gazebo 仿真（控制 ros2_control 与 gz 插件标签） -->
+  <xacro:arg name="use_gazebo" default="false" />
+
+  <!-- genie 顶层模型（robot_model/arm/body/lgripper/rgripper 等参数
+       由 genie.robot.xacro 自行声明默认值：G2 + T2 躯干 + crs 双臂 + omnipicker 双夹爪，
+       launch 调用时可通过同名 xacro 参数覆盖，mesh 已指向 g2bot_description） -->
+  <xacro:include filename="$(find g2bot_description)/urdf/genie/genie.robot.xacro" />
+
+  <!-- ros2_control：双臂/躯干/头部/双夹爪（底盘轮子暂不接入） -->
+  <xacro:include filename="$(find g2bot_description)/urdf/control/g2bot_ros2_control.urdf.xacro" />
+  <xacro:g2bot_ros2_control use_gazebo="$(arg use_gazebo)" />
+
+  <!-- gz 仿真侧 ros2_control 插件（加载控制器参数文件） -->
+  <xacro:include filename="$(find g2bot_description)/urdf/control/g2bot_sim_ros2_control.urdf.xacro" />
+  <xacro:g2bot_sim_ros2_control use_gazebo="$(arg use_gazebo)" />
+
+</robot>

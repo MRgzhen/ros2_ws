@@ -1,0 +1,408 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include ns="omnipicker" filename="gripper.omnipicker.urdf.xacro" />
+  <xacro:include ns="o12_t2" filename="gripper.o12_t2/hand.xacro" />
+  <xacro:include ns="o10_t2" filename="gripper.o10_t2/hand.xacro" />
+  <xacro:include ns="wuji" filename="gripper.wuji/hand.xacro" />
+  <xacro:include ns="ctek90d" filename="gripper.ctek90d.urdf.xacro" />
+
+  <xacro:include ns="dahuan_longqi" filename="gripper.dahuan_longqi.urdf.xacro" />
+  <xacro:include ns="dahuan_junsheng" filename="gripper.dahuan_junsheng.urdf.xacro" />
+  <xacro:include ns="dahuan" filename="gripper.dahuan.urdf.xacro" />
+  <xacro:include ns="dahuan_huatian" filename="gripper.dahuan_huatian.urdf.xacro" />
+  <xacro:include ns="dahuan_jd" filename="gripper.dahuan_jd.urdf.xacro" />
+  <xacro:include ns="scc" filename="gripper.scc.urdf.xacro" />
+  <xacro:include ns="suck" filename="gripper.suck.urdf.xacro" />
+  <xacro:include ns="lens" filename="gripper.lens.urdf.xacro" />
+  <xacro:include ns="dahuan_junpu" filename="gripper.dahuan_junpu.urdf.xacro" />
+  <xacro:include ns="g2u" filename="gripper.g2u.urdf.xacro" />
+  <xacro:include ns="g2u_t1" filename="gripper.g2u_t1.urdf.xacro" />
+
+  <xacro:property name="gripper_collision_type" value="coarse" />
+
+  <xacro:macro name="gripper"
+    params="lgripper rgripper left_arm_end_link right_arm_end_link visual_type collision_type mesh_dir app">
+    <!-- omnipicker -->
+    <xacro:if value="${'omnipicker' == lgripper}">
+      <xacro:omnipicker.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0.0051"
+        rpy_offset="0 0 ${PI_2}"
+        visual_type="${visual_type}"
+        collision_type="swept_hull"
+        mesh_dir="${mesh_dir}"
+        app="${app}" />
+    </xacro:if>
+    <xacro:if value="${'omnipicker' == rgripper}">
+      <xacro:omnipicker.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0.0051"
+        rpy_offset="0 0 ${PI_2}"
+        visual_type="${visual_type}"
+        collision_type="swept_hull"
+        mesh_dir="${mesh_dir}"
+        app="${app}" />
+    </xacro:if>
+
+    <!-- ctek90d -->
+    <xacro:if value="${'ctek90d' == lgripper}">
+      <xacro:ctek90d.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0.007"
+        rpy_offset="0 0 ${PI_2}"
+        visual_type="${visual_type}"
+        collision_type="swept_hull"
+        mesh_dir="${mesh_dir}"
+        app="${app}" />
+    </xacro:if>
+    <xacro:if value="${'ctek90d' == rgripper}">
+      <xacro:ctek90d.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0.007"
+        rpy_offset="0 0 ${PI_2}"
+        visual_type="${visual_type}"
+        collision_type="swept_hull"
+        mesh_dir="${mesh_dir}"
+        app="${app}" />
+    </xacro:if>
+
+    <!-- o10_t2 -->
+    <xacro:if value="${'o10_t2' == lgripper}">
+      <xacro:o10_t2.hand name="hand_l"
+        start_id="31"
+        mirror="-1"
+        mirror_mesh="True"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0.018"
+        rpy_offset="0 0 ${PI_2}"
+        visual_type="visual"
+        collision_type="swept_hull"
+        mesh_dir="${mesh_dir}"
+        app="${app}" />
+    </xacro:if>
+    <xacro:if value="${'o10_t2' == rgripper}">
+      <xacro:o10_t2.hand name="hand_r"
+        start_id="71"
+        mirror="1"
+        mirror_mesh="False"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0.018" rpy_offset="0 0 -${PI_2}"
+        visual_type="visual"
+        collision_type="swept_hull"
+        mesh_dir="${mesh_dir}"
+        app="${app}" />
+    </xacro:if>
+
+    <!-- o12_t2 LOW SUPPORTED -->
+    <xacro:if value="${'o12_t2' == lgripper}">
+      <xacro:o12_t2.hand
+        name="hand_l"
+        start_id="31"
+        mirror="-1"
+        mirror_mesh="True"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0.018"
+        rpy_offset="0 0 ${PI_2}"
+        visual_type="${visual_type}"
+        collision_type="${gripper_collision_type}"
+        mesh_dir="${mesh_dir}"
+        app="${app}"
+      />
+    </xacro:if>
+    <xacro:if value="${'o12_t2' == rgripper}">
+      <xacro:o12_t2.hand
+        name="hand_r"
+        start_id="71"
+        mirror="1"
+        mirror_mesh="False"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0.018"
+        rpy_offset="0 0 -${PI_2}"
+        visual_type="${visual_type}"
+        collision_type="${gripper_collision_type}"
+        mesh_dir="${mesh_dir}"
+        app="${app}"
+      />
+    </xacro:if>
+
+    <!-- wuji -->
+    <xacro:if value="${'wuji' == lgripper}">
+      <xacro:wuji.hand
+        name="hand_l"
+        start_id="31"
+        mirror="-1"
+        mirror_mesh="False"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0.054"
+        rpy_offset="0 0 ${PI_2}"
+        visual_type="${visual_type}"
+        collision_type="swept_hull"
+        mesh_dir="${mesh_dir}"
+        app="${app}"
+      />
+    </xacro:if>
+    <xacro:if value="${'wuji' == rgripper}">
+      <xacro:wuji.hand
+        name="hand_r"
+        start_id="71"
+        mirror="1"
+        mirror_mesh="False"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0.054"
+        rpy_offset="0 0 -${PI_2}"
+        visual_type="${visual_type}"
+        collision_type="swept_hull"
+        mesh_dir="${mesh_dir}"
+        app="${app}"
+      />
+    </xacro:if>
+
+    <!-- ================================================== INDUSTRIAL GRIPPERS
+    ================================================== -->
+    <!-- dahuan_longqi -->
+    <!-- TODO: set collision type to visual, collision mesh is not used -->
+    <xacro:if value="${'dahuan_longqi' == lgripper}">
+      <xacro:dahuan_longqi.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 0"
+        visual_type="${visual_type}"
+        collision_type="visual"
+        mesh_dir="${mesh_dir}"
+        app="${app}"
+      />
+    </xacro:if>
+    <xacro:if value="${'dahuan_longqi' == rgripper}">
+      <xacro:dahuan_longqi.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 0"
+        visual_type="${visual_type}"
+        collision_type="visual"
+        mesh_dir="${mesh_dir}"
+        app="${app}"
+      />
+      <xacro:dahuan_longqi.workspace
+        parent_link="base_link"
+        xyz_offset="0 0 -0.04"
+        rpy_offset="0 0 0"
+      />
+    </xacro:if>
+
+    <!-- dahuan_junsheng -->
+    <xacro:if value="${'dahuan_junsheng' == lgripper}">
+      <xacro:dahuan_junsheng.gripper_l
+        tf_prefix="gripper_left_"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 -${PI_2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+    <xacro:if value="${'dahuan_junsheng' == rgripper}">
+      <xacro:dahuan_junsheng.gripper_r
+        tf_prefix="gripper_right_"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 ${PI_2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+
+    <!-- dahuan (standalone copy of dahuan_junsheng, swept_hull collision) -->
+    <xacro:if value="${'dahuan' == lgripper}">
+      <xacro:dahuan.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 -${PI_2}"
+        center_z_offset=".1"
+        collision_type="swept_hull"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+    <xacro:if value="${'dahuan' == rgripper}">
+      <xacro:dahuan.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 ${PI_2}"
+        center_z_offset=".1"
+        collision_type="swept_hull"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+
+
+    <!-- dahuan_huatian -->
+    <xacro:if value="${'dahuan_huatian' == lgripper}">
+      <xacro:dahuan_huatian.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 ${PI}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+    <xacro:if value="${'dahuan_huatian' == rgripper}">
+      <xacro:dahuan_huatian.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 0"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+
+    <!-- dahuan_jd -->
+    <xacro:if value="${'dahuan_jd' == lgripper}">
+      <xacro:dahuan_jd.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 ${PI_2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+    <xacro:if value="${'dahuan_jd' == rgripper}">
+      <xacro:dahuan_jd.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 ${PI_2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+
+    <!-- scc -->
+    <xacro:if value="${'scc' == lgripper}">
+      <xacro:scc.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 ${PI}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+    <xacro:if value="${'scc' == rgripper}">
+      <xacro:scc.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 0"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+
+    <!-- suck -->
+    <xacro:if value="${'suck' == lgripper}">
+      <xacro:suck.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="-0.01168 0.00467 0"
+        rpy_offset="${PI/2} 0 ${PI/2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+    <xacro:if value="${'suck' == rgripper}">
+      <xacro:suck.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0.01168 -0.00467 0"
+        rpy_offset="${PI/2} 0 -${PI/2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+
+    <!-- suck + OmniPicker（左吸盘 + 右 OmniPicker，复用 suck / omnipicker 宏） -->
+    <xacro:if value="${'suck_omnipicker' == lgripper}">
+      <xacro:suck.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="-0.01168 0.00467 0"
+        rpy_offset="${PI/2} 0 ${PI/2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+    <xacro:if value="${'suck_omnipicker' == rgripper}">
+      <xacro:omnipicker.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0.0051"
+        rpy_offset="0 0 ${PI_2}"
+        visual_type="${visual_type}"
+        collision_type="swept_hull"
+        mesh_dir="${mesh_dir}"
+        app="${app}" />
+    </xacro:if>
+
+    <!-- lens -->
+    <xacro:if value="${'lens' == lgripper}">
+      <xacro:lens.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 -${PI_2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+    <xacro:if value="${'lens' == rgripper}">
+      <xacro:lens.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 0 ${PI_2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+
+    <!-- dahuan_junpu -->
+    <xacro:if value="${'dahuan_junpu' == lgripper}">
+      <xacro:dahuan_junpu.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="-${PI_2} 0 0"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+    <xacro:if value="${'dahuan_junpu' == rgripper}">
+      <xacro:dahuan_junpu.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="-${PI_2} 0 0"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+
+    <!-- g2u -->
+    <xacro:if value="${'g2u' == lgripper}">
+      <xacro:g2u.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 -${PI_2} ${PI_2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+    <xacro:if value="${'g2u' == rgripper}">
+      <xacro:g2u.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="0 -${PI_2} ${PI_2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+
+    <!-- g2u_t1 -->
+    <xacro:if value="${'g2u_t1' == lgripper}">
+      <xacro:g2u_t1.gripper_l
+        tf_prefix="l"
+        parent_link="${left_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="${PI_2} -${PI_2} ${PI_2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+    <xacro:if value="${'g2u_t1' == rgripper}">
+      <xacro:g2u_t1.gripper_r
+        tf_prefix="r"
+        parent_link="${right_arm_end_link}"
+        xyz_offset="0 0 0"
+        rpy_offset="-${PI_2} -${PI_2} ${PI_2}"
+        mesh_dir="${mesh_dir}" />
+    </xacro:if>
+
+
+  </xacro:macro>
+
+
+</robot>

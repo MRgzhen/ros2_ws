@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:include filename="const.xacro" />
+    <xacro:include filename="finger.xacro" />
+
+    <!-- shade matching the original urdf material colour -->
+    <material name="hand_color">
+        <color rgba="0.8980392 0.9176471 0.9294118 1" />
+    </material>
+
+    <!-- ==================================================================== -->
+    <!-- Framework adapter macro.                                              -->
+    <!-- genie's gripper framework calls every hand through a 'hand' macro     -->
+    <!-- with a uniform parameter set. This wrapper maps those parameters onto -->
+    <!-- the native wuji_hand macro so the wuji hand plugs into the robot arm. -->
+    <!--   name      : 'hand_l' / 'hand_r' (selects the side)                  -->
+    <!--   mesh_dir  : root mesh directory; meshes live in mesh_dir/gripper/wuji/<side> -->
+    <!-- start_id / mirror / mirror_mesh / visual_type / collision_type / app  -->
+    <!-- are accepted for signature parity with the uniform gripper interface  -->
+    <!-- and are currently unused inside wuji_hand (hand joints don't consume  -->
+    <!-- the global idx band per naming_convention.hand.md §0).                -->
+    <!-- ==================================================================== -->
+    <xacro:macro name="hand"
+        params="name start_id mirror mirror_mesh parent_link xyz_offset rpy_offset visual_type collision_type mesh_dir app">
+        <xacro:property name="side" value="${'left' if name == 'hand_l' else 'right'}" />
+        <xacro:wuji_hand
+            prefix="${name}"
+            side="${side}"
+            mesh_path="${mesh_dir}/gripper/wuji/${side}"
+            parent_link="${parent_link}"
+            xyz_offset="${xyz_offset}"
+            rpy_offset="${rpy_offset}"
+            collision_type="${collision_type}"
+            attach="true" />
+    </xacro:macro>
+
+    <!-- ==================================================================== -->
+    <!-- Full wuji hand assembly macro.                                        -->
+    <!--   prefix     : URDF link/joint prefix ('hand_l' / 'hand_r')           -->
+    <!--   side       : 'right' or 'left' (selects the parameter set + meshes) -->
+    <!--   mesh_path  : directory holding the STL meshes for this side         -->
+    <!--   parent_link: link the palm is attached to                           -->
+    <!--   xyz_offset / rpy_offset : pose of the palm w.r.t. the parent        -->
+    <!-- Builds: palm + 5 fingers (each 4 revolute + 1 fixed pad).             -->
+    <!-- Link/joint names follow docs/naming_convention.hand.md (no idx prefix). -->
+    <!-- ==================================================================== -->
+    <xacro:macro name="wuji_hand"
+        params="prefix side mesh_path parent_link:='world' xyz_offset:='0 0 0' rpy_offset:='0 0 0' collision_type:='swept_hull' attach:=true">
+
+        <!-- ============================= palm ============================= -->
+        <!-- Wuji has a single palm segment that also serves as the arm-side    -->
+        <!-- mount, so we use `_base_link` (not `_palm_1`) per                  -->
+        <!-- docs/naming_convention.hand.md §2.1.                              -->
+        <link name="${prefix}_base_link">
+            <inertial>
+                <origin rpy="0 0 0"
+                    xyz="${palm_com[side][0]} ${palm_com[side][1]} ${palm_com[side][2]}" />
+                <mass value="${palm_mass}" />
+                <inertia ixx="${palm_inertia['ixx']}" ixy="${palm_inertia['ixy']}"
+                    ixz="${palm_inertia['ixz']}" iyy="${palm_inertia['iyy']}"
+                    iyz="${palm_inertia['iyz']}" izz="${palm_inertia['izz']}" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <mesh filename="${mesh_path}/${side}_palm_link.STL" />
+                </geometry>
+                <material name="hand_color" />
+            </visual>
+            <!-- physics_solver: keep the original full-mesh palm collision -->
+            <xacro:if value="${collision_type == 'physics_solver'}">
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="${mesh_path}/${side}_palm_link.STL" />
+                    </geometry>
+                </collision>
+            </xacro:if>
+            <!-- swept_hull: single convex hull covering the whole hand's swept    -->
+            <!-- volume, attached to the palm/base link. Fingers carry no collision -->
+            <!-- geometry in this mode (mirrors the o10_t2 swept_hull convention).  -->
+            <xacro:if value="${collision_type == 'swept_hull'}">
+                <collision name="${prefix}_base_link_swept_hull_0">
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="${mesh_path}/swept_hull/hand.STL" />
+                    </geometry>
+                </collision>
+                <collision_checking>
+                    <convex name="${prefix}_base_link_swept_hull_0" />
+                </collision_checking>
+            </xacro:if>
+        </link>
+
+        <xacro:if value="${attach}">
+            <joint name="${prefix}_base_joint" type="fixed">
+                <origin xyz="${xyz_offset}" rpy="${rpy_offset}" />
+                <parent link="${parent_link}" />
+                <child link="${prefix}_base_link" />
+            </joint>
+        </xacro:if>
+
+        <!-- ============================ fingers =========================== -->
+        <!-- fid → finger_name mapping: 1=thumb, 2=index, 3=middle, 4=ring, 5=pinky -->
+        <xacro:wuji_finger prefix="${prefix}" side="${side}" fid="1" finger_name="thumb"  mesh_path="${mesh_path}" collision_type="${collision_type}" />
+        <xacro:wuji_finger prefix="${prefix}" side="${side}" fid="2" finger_name="index"  mesh_path="${mesh_path}" collision_type="${collision_type}" />
+        <xacro:wuji_finger prefix="${prefix}" side="${side}" fid="3" finger_name="middle" mesh_path="${mesh_path}" collision_type="${collision_type}" />
+        <xacro:wuji_finger prefix="${prefix}" side="${side}" fid="4" finger_name="ring"   mesh_path="${mesh_path}" collision_type="${collision_type}" />
+        <xacro:wuji_finger prefix="${prefix}" side="${side}" fid="5" finger_name="pinky"  mesh_path="${mesh_path}" collision_type="${collision_type}" />
+
+    </xacro:macro>
+</robot>

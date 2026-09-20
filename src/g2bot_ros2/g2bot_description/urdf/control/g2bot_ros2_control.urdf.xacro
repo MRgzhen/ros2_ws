@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- ============ G2 ros2_control（gz 仿真硬件） ============
+         接入范围：躯干 5 轴 + 头部 3 轴 + 双臂各 7 轴 + 双夹爪（各 1 主关节 + 7 mimic）
+         底盘轮子（4 转向 + 4 驱动）暂不接入，机器人驻停，后续按需扩展。
+         mimic 关节：Jazzy 的 controller_manager 原生解析 URDF 的 <mimic> 标签联动，
+         mimic 关节在此只能声明 state_interface、不得声明 command_interface，
+         否则报 "Activated mimic joints cannot have command interfaces" 且全部控制器激活失败。 -->
+
+    <xacro:macro name="g2bot_ros2_control" params="use_gazebo">
+        <xacro:if value="${use_gazebo}">
+            <ros2_control name="g2bot" type="system">
+                <hardware>
+                    <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+                </hardware>
+
+                <!-- ==================== 躯干 5 轴 ==================== -->
+                <joint name="idx01_body_joint1">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx02_body_joint2">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx03_body_joint3">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx04_body_joint4">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx05_body_joint5">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+
+                <!-- ==================== 头部 3 轴 ==================== -->
+                <joint name="idx11_head_joint1">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx12_head_joint2">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx13_head_joint3">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+
+                <!-- ==================== 左臂 7 轴 ==================== -->
+                <joint name="idx21_arm_l_joint1">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx22_arm_l_joint2">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx23_arm_l_joint3">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx24_arm_l_joint4">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx25_arm_l_joint5">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx26_arm_l_joint6">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx27_arm_l_joint7">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+
+                <!-- ==================== 右臂 7 轴 ==================== -->
+                <joint name="idx61_arm_r_joint1">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx62_arm_r_joint2">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx63_arm_r_joint3">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx64_arm_r_joint4">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx65_arm_r_joint5">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx66_arm_r_joint6">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+                <joint name="idx67_arm_r_joint7">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                </joint>
+
+                <!-- ==================== 左夹爪（主关节 + 7 mimic） ==================== -->
+                <!-- 主关节：限位 -0.785..0，负值闭合（与 A2 夹爪习惯一致） -->
+                <joint name="idx31_gripper_l_inner_joint1">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                    <state_interface name="velocity" />
+                </joint>
+                <joint name="idx32_gripper_l_inner_joint3">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx33_gripper_l_inner_joint4">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx39_gripper_l_inner_joint0">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx41_gripper_l_outer_joint1">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx42_gripper_l_outer_joint3">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx43_gripper_l_outer_joint4">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx49_gripper_l_outer_joint0">
+                    <state_interface name="position" />
+                </joint>
+
+                <!-- ==================== 右夹爪（主关节 + 7 mimic） ==================== -->
+                <!-- 主关节：限位 0..0.785，正值闭合（与左夹爪镜像） -->
+                <joint name="idx71_gripper_r_inner_joint1">
+                    <command_interface name="position" />
+                    <state_interface name="position">
+                        <param name="initial_value">0.0</param>
+                    </state_interface>
+                    <state_interface name="velocity" />
+                </joint>
+                <joint name="idx72_gripper_r_inner_joint3">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx73_gripper_r_inner_joint4">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx79_gripper_r_inner_joint0">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx81_gripper_r_outer_joint1">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx82_gripper_r_outer_joint3">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx83_gripper_r_outer_joint4">
+                    <state_interface name="position" />
+                </joint>
+                <joint name="idx89_gripper_r_outer_joint0">
+                    <state_interface name="position" />
+                </joint>
+
+            </ros2_control>
+        </xacro:if>
+    </xacro:macro>
+
+</robot>

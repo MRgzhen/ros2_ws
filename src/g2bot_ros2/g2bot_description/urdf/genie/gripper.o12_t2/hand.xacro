@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="const.xacro" />
+    <xacro:include filename="thumb.xacro" />
+    <xacro:include filename="index.xacro" />
+    <xacro:include filename="middle.xacro" />
+    <xacro:include filename="ring_pinky.xacro" />
+
+    <xacro:macro name="hand"
+        params="name start_id mirror mirror_mesh parent_link xyz_offset rpy_offset visual_type collision_type mesh_dir app">
+        <xacro:property name="mesh_path" value="${mesh_dir}/gripper/o12/t2" />
+        <!-- Camera Link -->
+        <link name="${name}_camera_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <xacro:if value="${mirror_mesh == True}">
+                            <mesh filename="${mesh_path}/l_camera_link.STL" />
+                    </xacro:if>
+                    <xacro:if value="${mirror_mesh == False}">
+                        <mesh filename="${mesh_path}/r_camera_link.STL" />
+                    </xacro:if>
+                </geometry>
+                
+            </visual>
+            <xacro:if value="${collision_type == 'visual'}">
+                <collision name="${name}_camera_link_collision_0">
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <xacro:if value="${mirror_mesh == True}">
+                            <mesh filename="${mesh_path}/l_camera_link.STL" />
+                        </xacro:if>
+                        <xacro:if value="${mirror_mesh == False}">
+                            <mesh filename="${mesh_path}/r_camera_link.STL" />
+                        </xacro:if>
+                    </geometry>
+                </collision>
+            </xacro:if>
+            <xacro:if value="${collision_type == 'fine' or collision_type == 'coarse'}">
+                <collision name="${name}_camera_link_convex_0">
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <xacro:if value="${mirror_mesh == True}">
+                            <mesh filename="${mesh_path}/collision/l_camera_link.STL" />
+                        </xacro:if>
+                        <xacro:if value="${mirror_mesh == False}">
+                            <mesh filename="${mesh_path}/collision/r_camera_link.STL" />
+                        </xacro:if>
+                    </geometry>
+                </collision>
+                <collision_checking>
+                    <convex name="${name}_camera_link_convex_0" />
+                </collision_checking>
+            </xacro:if>
+        </link>
+
+        <joint name="idx${start_id}_${name}_camera_joint" type="fixed">
+            <origin xyz="0 0 0" rpy="${rpy_offset}" />
+            <parent link="${parent_link}" />
+            <child link="${name}_camera_link" />
+            <axis xyz="0 0 0" />
+        </joint>
+        
+        <!-- Hand Base Link -->
+        <joint name="${name}_hand_base_joint" type="fixed">
+            <origin xyz="${xyz_offset}" rpy="${rpy_offset}" />
+            <parent link="${parent_link}" />
+            <child link="${name}_base_link" />
+            <axis xyz="0 0 0" />
+        </joint>
+
+        <link name="${name}_base_link">
+            <visual>
+                <origin rpy="0 0 0" xyz="0 0 0" />
+                <geometry>
+                    <xacro:if value="${mirror_mesh == True}">
+                        <mesh
+                            filename="${mesh_path}/l_palm.STL" />
+                    </xacro:if>
+                    <xacro:if value="${mirror_mesh == False}">
+                        <mesh
+                            filename="${mesh_path}/r_palm.STL" />
+                    </xacro:if>
+                </geometry>
+                <material name="silver" />
+            </visual>
+            <inertial>
+                <origin rpy="0 0 0"
+                    xyz="${palm_com_x} ${palm_com_y*mirror} ${palm_com_z}" />
+                <mass value="${palm_mass}" />
+                <inertia ixx="${palm_ixx}" ixy="${palm_ixy*mirror}"
+                    ixz="${palm_ixz}" iyy="${palm_iyy}" iyz="${palm_iyz*mirror}"
+                    izz="${palm_izz}" />
+            </inertial>
+            <xacro:if value="${collision_type == 'fine'}">
+                <collision>
+                    <origin rpy="0 0 0" xyz="0 0 0" />
+                    <geometry>
+                        <xacro:if value="${mirror_mesh == True}">
+                            <mesh
+                                filename="${mesh_path}/collision/l_palm.STL" />
+                        </xacro:if>
+                        <xacro:if value="${mirror_mesh == False}">
+                            <mesh
+                                filename="${mesh_path}/collision/r_palm.STL" />
+                        </xacro:if>
+                    </geometry>
+                </collision>
+            </xacro:if>
+            <xacro:if value="${collision_type == 'coarse'}">
+                <collision>
+                    <origin rpy="0 0 0" xyz="0 0 ${palm_collision_cylinder_z}" />
+                    <geometry>
+                        <cylinder radius="${palm_collision_cylinder_r}"
+                            length="${palm_collision_cylinder_l}" />
+                    </geometry>
+                </collision>
+                <collision>
+                    <origin rpy="0 0 0" xyz="0 0 ${palm_collision_box_z}" />
+                    <geometry>
+                        <box
+                            size="${palm_collision_box_l} ${palm_collision_box_w} ${palm_collision_box_h}" />
+                    </geometry>
+                </collision>
+            </xacro:if>
+        </link>
+           
+        <!-- Thumb Finger -->
+        <xacro:thumb name="${name}" start_id="${start_id}" mirror="${mirror}"
+            mirror_mesh="${mirror_mesh}" mesh_path="${mesh_path}" collision_type="${collision_type}" />
+
+        <!-- Index Finger -->
+        <xacro:index name="${name}" start_id="${start_id+5}" mirror="${mirror}"
+            mirror_mesh="${mirror_mesh}" mesh_path="${mesh_path}" collision_type="${collision_type}" />
+        
+        <!-- Middle Finger -->
+        <xacro:middle name="${name}" start_id="${start_id+5+4}" mirror="${mirror}"
+            mirror_mesh="${mirror_mesh}" mesh_path="${mesh_path}" collision_type="${collision_type}" />
+
+        <!-- Ring Finger -->
+        <joint name="idx${start_id+5+4+4}_${name}_ring_mcp_joint" type="revolute">
+            <origin xyz="${ring_mcp_x} ${ring_mcp_y*mirror} ${ring_mcp_z}" rpy="0.0 0.0 0.0" />
+            <parent link="${name}_base_link" />
+            <child link="${name}_ring_mcp_link" />
+            <axis xyz="0 1 0" />
+            <limit effort="${ring_mcp_torque_max}" velocity="${ring_mcp_velocity_max}"
+                lower="${ring_mcp_position_min}" upper="${ring_mcp_position_max}" />
+        </joint>
+
+        <xacro:ring name="${name}_ring" start_id="${start_id+5+4+4}" mirror="${mirror}"
+            mirror_mesh="${mirror_mesh}" mesh_path="${mesh_path}" collision_type="${collision_type}">
+        </xacro:ring>
+
+        <!-- Pinky Finger -->
+        <joint name="idx${start_id+5+4+4+3}_${name}_pinky_mcp_joint" type="revolute">
+            <origin xyz="${pinky_mcp_x} ${pinky_mcp_y*mirror} ${pinky_mcp_z}" rpy="0.0 0.0 0.0" />
+            <parent link="${name}_base_link" />
+            <child link="${name}_pinky_mcp_link" />
+            <axis xyz="0 1 0" />
+            <limit effort="${ring_mcp_torque_max}" velocity="${ring_mcp_velocity_max}"
+                lower="${ring_mcp_position_min}" upper="${ring_mcp_position_max}" />
+        </joint>
+        <xacro:ring name="${name}_pinky" start_id="${start_id+5+4+4+3}" mirror="${mirror}"
+            mirror_mesh="${mirror_mesh}" mesh_path="${mesh_path}" collision_type="${collision_type}">
+        </xacro:ring>
+
+    </xacro:macro>
+</robot>

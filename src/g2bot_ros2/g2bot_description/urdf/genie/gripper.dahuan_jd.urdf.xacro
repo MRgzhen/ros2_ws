@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro
+    name="gripper_l"
+    params="tf_prefix parent_link xyz_offset rpy_offset mesh_dir">
+
+    <link
+      name="gripper_l_base_link">
+      <inertial>
+        <origin
+          xyz="0.0013991065712624239 -0.0025006209879334905 0.031992535677423065"
+          rpy="0 0 0" />
+        <mass
+          value="1.0286702418863318" />
+        <inertia
+          ixx="0.00255704"
+          ixy="-1.023e-05"
+          ixz="1e-08"
+          iyy="0.00137958"
+          iyz="0.00013221"
+          izz="0.00177078" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/base_l_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <collision name="gripper_l_base_link_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/base_l_link_collision.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_l_base_link_convex_00" />
+      </collision_checking>
+    </link>
+    <link
+      name="gripper_l_outer_link1">
+      <inertial>
+        <origin
+          xyz="0.05257724 0.01502143 -0.00201342"
+          rpy="0 0 0" />
+        <mass
+          value="0.0" />
+        <inertia
+          ixx="6.928e-05"
+          ixy="-4.878e-05"
+          ixz="1.452e-05"
+          iyy="8.969e-05"
+          iyz="1.147e-05"
+          izz="0.00012955" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/finger1_l_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <collision name="gripper_l_outer_link1_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger1_l_link_collision_01.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_outer_link1_convex_01">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger1_l_link_collision_02.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_outer_link1_convex_02">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger1_l_link_collision_03.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_outer_link1_convex_03">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger1_l_link_collision_04.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_l_outer_link1_convex_00" />
+        <convex name="gripper_l_outer_link1_convex_01" />
+        <convex name="gripper_l_outer_link1_convex_02" />
+        <convex name="gripper_l_outer_link1_convex_03" />
+      </collision_checking>
+    </link>
+    <link
+      name="gripper_l_inner_link1">
+      <inertial>
+        <origin
+          xyz="-0.01340782 -0.05816193 0.00301283"
+          rpy="0 0 0" />
+        <mass
+          value="0.0" />
+        <inertia
+          ixx="0.0001178"
+          ixy="-3.116e-05"
+          ixz="-7.61e-06"
+          iyy="3.58e-05"
+          iyz="-1.007e-05"
+          izz="0.00012737" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/finger2_l_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <collision name="gripper_l_inner_link1_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger2_l_link_collision_01.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_inner_link1_convex_01">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger2_l_link_collision_02.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_l_inner_link1_convex_02">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger2_l_link_collision_03.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_l_inner_link1_convex_00" />
+        <convex name="gripper_l_inner_link1_convex_01" />
+        <convex name="gripper_l_inner_link1_convex_02" />
+      </collision_checking>
+    </link>
+    <joint
+      name="idx41_gripper_l_outer_joint1"
+      type="prismatic">
+      <origin
+        xyz="0.0234 -0.025667 0.098"
+        rpy="0 0 0" />
+      <parent
+        link="gripper_l_base_link" />
+      <child
+        link="gripper_l_outer_link1" />
+      <axis
+        xyz="0 1 0" />
+      <limit
+        lower="0"
+        upper="0.025"
+        effort="0"
+        velocity="0" />
+      <mimic
+        joint="idx31_gripper_l_inner_joint1"
+        multiplier="1"
+        offset="0" />
+    </joint>
+    <joint
+      name="idx31_gripper_l_inner_joint1"
+      type="prismatic">
+      <origin
+        xyz="0.0434 0.026333 0.098"
+        rpy="0 0 3.1416" />
+      <parent
+        link="gripper_l_base_link" />
+      <child
+        link="gripper_l_inner_link1" />
+      <axis
+        xyz="0 1 0" />
+      <limit
+        lower="0"
+        upper="0.025"
+        effort="0"
+        velocity="0" />
+    </joint>
+
+    <!-- Gripper Connector -->
+    <joint
+      name="idx51_ee_l_joint"
+      type="fixed">
+      <origin
+        xyz="${xyz_offset}"
+        rpy="${rpy_offset}" />
+      <parent
+        link="${parent_link}" />
+      <child
+        link="gripper_l_base_link" />
+      <axis
+        xyz="0 0 0" />
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro
+    name="gripper_r"
+    params="tf_prefix parent_link xyz_offset rpy_offset mesh_dir">
+
+    <link
+      name="gripper_r_base_link">
+      <inertial>
+        <origin
+          xyz="-0.0019613958593410175 0.00862992202313176 0.02620048813577301"
+          rpy="0 0 0" />
+        <mass
+          value="1.041224125745072" />
+        <inertia
+          ixx="0.00255704"
+          ixy="-1.023e-05"
+          ixz="1e-08"
+          iyy="0.00137958"
+          iyz="0.00013221"
+          izz="0.00177078" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/base_r_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <collision name="gripper_r_base_link_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/base_r_link_collision.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_r_base_link_convex_00" />
+      </collision_checking>
+    </link>
+    <link
+      name="gripper_r_outer_link1">
+      <inertial>
+        <origin
+          xyz="-0.03415482 0.02325717 -0.00345202"
+          rpy="0 0 0" />
+        <mass
+          value="0.0" />
+        <inertia
+          ixx="5.281e-05"
+          ixy="2.904e-05"
+          ixz="-7.82e-06"
+          iyy="4.826e-05"
+          iyz="6.98e-06"
+          izz="7.122e-05" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/finger1_r_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <collision name="gripper_r_outer_link1_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger1_r_link_collision_01.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_outer_link1_convex_01">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger1_r_link_collision_02.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_outer_link1_convex_02">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger1_r_link_collision_03.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_r_outer_link1_convex_00" />
+        <convex name="gripper_r_outer_link1_convex_01" />
+        <convex name="gripper_r_outer_link1_convex_02" />
+      </collision_checking>
+    </link>
+    <link
+      name="gripper_r_inner_link1">
+      <inertial>
+        <origin
+          xyz="0.0328451 -0.05687509 0.00309487"
+          rpy="0 0 0" />
+        <mass
+          value="0.0" />
+        <inertia
+          ixx="0.00012327"
+          ixy="6.211e-05"
+          ixz="9.83e-06"
+          iyy="5.953e-05"
+          iyz="-1.039e-05"
+          izz="0.00015644" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/finger2_r_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <collision name="gripper_r_inner_link1_convex_00">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger2_r_link_collision_01.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_inner_link1_convex_01">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger2_r_link_collision_02.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_inner_link1_convex_02">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger2_r_link_collision_03.STL" />
+        </geometry>
+      </collision>
+      <collision name="gripper_r_inner_link1_convex_03">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_jd/convex/finger2_r_link_collision_04.STL" />
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_r_inner_link1_convex_00" />
+        <convex name="gripper_r_inner_link1_convex_01" />
+        <convex name="gripper_r_inner_link1_convex_02" />
+        <convex name="gripper_r_inner_link1_convex_03" />
+      </collision_checking>
+    </link>
+    <joint
+      name="idx81_gripper_r_outer_joint1"
+      type="prismatic">
+      <origin
+        xyz="-0.0434 -0.030667 0.098"
+        rpy="0 0 0" />
+      <parent
+        link="gripper_r_base_link" />
+      <child
+        link="gripper_r_outer_link1" />
+      <axis
+        xyz="0 1 0" />
+      <limit
+        lower="0"
+        upper="0.025"
+        effort="0"
+        velocity="0" />
+      <mimic
+        joint="idx71_gripper_r_inner_joint1"
+        multiplier="1"
+        offset="0" />
+    </joint>
+    <joint
+      name="idx71_gripper_r_inner_joint1"
+      type="prismatic">
+      <origin
+        xyz="-0.0234 0.026333 0.098"
+        rpy="0 0 3.1416" />
+      <parent
+        link="gripper_r_base_link" />
+      <child
+        link="gripper_r_inner_link1" />
+      <axis
+        xyz="0 1 0" />
+      <limit
+        lower="0"
+        upper="0.025"
+        effort="0"
+        velocity="0" />
+    </joint>
+
+    <!-- Gripper Connector -->
+    <joint
+      name="idx91_ee_r_joint"
+      type="fixed">
+      <origin
+        xyz="${xyz_offset}"
+        rpy="${rpy_offset}" />
+      <parent
+        link="${parent_link}" />
+      <child
+        link="gripper_r_base_link" />
+      <axis
+        xyz="0 0 0" />
+    </joint>
+
+  </xacro:macro>
+</robot>

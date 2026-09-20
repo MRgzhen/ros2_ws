@@ -1,0 +1,268 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="body"
+    params="visual_type collision_type mesh_dir app">
+    <!-- Base -->
+      <link
+        name="base_link">
+        <inertial>
+          <origin
+            xyz="-0.14499 -0.00098 0.51925"
+            rpy="0 0 0" />
+          <mass
+            value="230.58" />
+          <inertia
+            ixx="68.155"
+            ixy="-0.33068"
+            ixz="8.3208"
+            iyy="72.992"
+            iyz="-0.21069"
+            izz="13.948" />
+        </inertial>
+        <visual>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/G2U/T1/base_link.STL" />
+          </geometry>
+          <material
+            name="">
+            <color
+              rgba="0.75294 0.75294 0.75294 1" />
+          </material>
+        </visual>
+  
+          <collision name="Cube">
+            <origin xyz="0.000000 0.000000 0.145000" rpy="0.000000 0.000000 0.000000"/>
+            <geometry>
+              <box size="0.957742 0.723656 0.290000"/>
+            </geometry>
+          </collision>
+          <collision name="Cube.001">
+            <origin xyz="-0.320367 0.003606 0.879511" rpy="0.000000 0.000000 0.000000"/>
+            <geometry>
+              <box size="0.255520 0.281000 1.738850"/>
+            </geometry>
+          </collision>
+          <collision name="chassis_lwheel_front_caster">
+            <origin xyz="0.306698 0.192451 0.035714" rpy="0 1.570796 0"/>
+            <geometry>
+              <sphere radius="0.040714"/>
+            </geometry>
+          </collision>
+          <collision name="chassis_rwheel_rear_caster">
+            <origin xyz="-0.305834 -0.191907 0.035714" rpy="0 1.570796 0"/>
+            <geometry>
+              <sphere radius="0.040714"/>
+            </geometry>
+          </collision>
+          </link>
+      <!-- Body Prismatic -->
+      <link
+        name="body_link1">
+        <inertial>
+          <origin
+            xyz="0.239463 -0.021381 -0.016856"
+            rpy="0 0 0" />
+          <mass
+            value="41.117288" />
+          <inertia
+            ixx="0.541723"
+            ixy="-0.068464"
+            ixz="-0.042597"
+            iyy="1.133704"
+            iyz="-0.081584"
+            izz="1.214055" />
+        </inertial>
+        <visual>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/G2U/T1/body_link1.STL" />
+          </geometry>
+          <material
+            name="">
+            <color
+              rgba="0.75294 0.75294 0.75294 1" />
+          </material>
+        </visual>
+  
+          <collision name="Cube">
+            <origin xyz="0.127717 0.000000 -0.003005" rpy="0.000000 0.000000 0.000000"/>
+            <geometry>
+              <box size="0.506873 0.372490 0.227601"/>
+            </geometry>
+          </collision>
+          <collision name="Cube.001">
+            <origin xyz="0.027046 -0.117199 -0.172793" rpy="0.000000 0.000000 0.000000"/>
+            <geometry>
+              <box size="0.099850 0.122463 0.107810"/>
+            </geometry>
+          </collision>
+          </link>
+      <joint
+        name="idx01_body_joint1"
+        type="prismatic">
+        <origin
+          xyz="-0.175 0 1.0525"
+          rpy="0 0 0" />
+        <parent
+          link="base_link" />
+        <child
+          link="body_link1" />
+        <axis
+          xyz="0 0 1" />
+        <limit
+          lower="-0.4825"
+          upper="0.4925"
+          effort="5762"
+          velocity="0.4" />
+      </joint>
+      <!-- Body Pitch -->
+      <link
+        name="body_link2">
+        <inertial>
+          <origin
+            xyz="0.000878 -0.003978 0.477668"
+            rpy="0 0 0" />
+          <mass
+            value="31.265437" />
+          <inertia
+            ixx="2.414427"
+            ixy="-0.002154"
+            ixz="-0.021686"
+            iyy="2.290241"
+            iyz="-0.071543"
+            izz="0.313339" />
+        </inertial>
+        <visual>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/G2U/T1/body_link2.STL" />
+          </geometry>
+          <material
+            name="">
+            <color
+              rgba="0.75294 0.75294 0.75294 1" />
+          </material>
+        </visual>
+  
+          <collision name="Cube">
+            <origin xyz="0.000000 0.029216 0.039013" rpy="0.000000 0.000000 0.000000"/>
+            <geometry>
+              <box size="0.176125 0.288726 0.247493"/>
+            </geometry>
+          </collision>
+          <collision name="Cylinder">
+            <origin xyz="0.000000 0.000000 0.353851" rpy="0.000000 0.000000 0.000000"/>
+            <geometry>
+              <cylinder radius="0.076354" length="0.411325"/>
+            </geometry>
+          </collision>
+          <collision name="Cube.001">
+            <origin xyz="0.000000 0.000000 0.606933" rpy="0.000000 0.000000 0.000000"/>
+            <geometry>
+              <box size="0.167814 0.167814 0.167814"/>
+            </geometry>
+          </collision>
+          <collision name="Cube.002">
+            <origin xyz="0.075849 0.003090 0.737346" rpy="0.000000 0.000000 0.000000"/>
+            <geometry>
+              <box size="0.056867 0.080081 0.084939"/>
+            </geometry>
+          </collision>
+          </link>
+      <joint
+        name="idx02_body_joint2"
+        type="revolute">
+        <origin
+          xyz="0.366 0 0"
+          rpy="0 0 0" />
+        <parent
+          link="body_link1" />
+        <child
+          link="body_link2" />
+        <axis
+          xyz="0 1 0" />
+        <limit
+          lower="-0.0175"
+          upper="1.5184"
+          effort="1070"
+          velocity="0.349" />
+      </joint>
+      <!-- Head -->
+      <link name="head_base_link" />
+      <joint name="idx10_head_base_joint" type="fixed">
+        <origin xyz="0.0525 0.0005 0.8239" rpy="0 0 0" />
+        <parent link="body_link2" />
+        <child link="head_base_link" />
+        <axis xyz="0 0 0" />
+      </joint>
+      <!-- Head Pitch -->
+      <link
+        name="head_link1">
+        <inertial>
+          <origin
+            xyz="0.056017 -0.0029611 0.11888"
+            rpy="0 0 0" />
+          <mass
+            value="0.522801" />
+          <inertia
+            ixx="0.00233"
+            ixy="-6E-06"
+            ixz="-0.000534"
+            iyy="0.002164"
+            iyz="4.8E-05"
+            izz="0.001039" />
+        </inertial>
+        <visual>
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/G2U/T1/head_link.STL" />
+          </geometry>
+          <material
+            name="">
+            <color
+              rgba="0.75294 0.75294 0.75294 1" />
+          </material>
+        </visual>
+  
+          <collision name="Cube">
+            <origin xyz="0.022811 0.000485 0.024752" rpy="0.000000 0.000000 0.000000"/>
+            <geometry>
+              <box size="0.192628 0.127647 0.136307"/>
+            </geometry>
+          </collision>
+          </link>
+      <joint
+        name="idx11_head_joint1"
+        type="revolute">
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <parent
+          link="head_base_link" />
+        <child
+          link="head_link1" />
+        <axis
+          xyz="0 1 0" />
+        <limit
+          lower="-0.5236"
+          upper="0.7854"
+          effort="11"
+          velocity="0.349" />
+      </joint>
+  
+  </xacro:macro>
+</robot>

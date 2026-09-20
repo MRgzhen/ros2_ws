@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<robot name="G2" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="G2" params="body arm lgripper rgripper visual_type collision_type mesh_dir app">
+    <!-- properties -->
+    <xacro:property name="arm_base_link" value="arm_base_link" />
+    <xacro:property name="left_arm_end_link" value="arm_l_end_link" />
+    <xacro:property name="right_arm_end_link" value="arm_r_end_link" />
+    <xacro:property name="has_battery" value="true" />
+
+    <!-- import robot components -->
+    <!-- body -->
+    <xacro:include ns="t1" filename="G2.body.t1.urdf.xacro" />
+    <xacro:include ns="t2" filename="G2.body.t2.urdf.xacro" />
+    <xacro:include ns="t2v2" filename="G2.body.t2v2.urdf.xacro" />
+
+    <!-- chassis -->
+    <xacro:include filename="G2.chassis.urdf.xacro" />
+
+    <!-- arm -->
+    <xacro:include ns="crs" filename="G2.arm.crs.urdf.xacro" />
+    <xacro:include ns="crsB" filename="G2.arm.crsB.urdf.xacro" />
+
+    <!-- gripper set -->
+    <xacro:include filename="G2.gripper.urdf.xacro" />
+
+    <!-- assemble robot -->
+    <!-- ======================== body ======================== -->
+    <!-- t1 -->
+    <xacro:if value="${'t1' == body}">
+      <xacro:t1.body
+        arm_base_link="${arm_base_link}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        mesh_dir="${mesh_dir}"
+        app="${app}"
+        has_battery="${has_battery}" />
+    </xacro:if>
+    <!-- t2 -->
+    <xacro:if value="${'t2' == body}">
+      <xacro:t2.body
+        arm_base_link="${arm_base_link}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        mesh_dir="${mesh_dir}"
+        app="${app}"
+        has_battery="${has_battery}" />
+    </xacro:if>
+    <!-- t2v2 -->
+    <xacro:if value="${'t2v2' == body}">
+      <xacro:t2v2.body
+        arm_base_link="${arm_base_link}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        mesh_dir="${mesh_dir}"
+        app="${app}"
+        has_battery="${has_battery}" />
+    </xacro:if>
+
+    <!-- ======================== chassis ======================== -->
+    <xacro:chassis
+      visual_type="${visual_type}"
+      collision_type="${collision_type}"
+      mesh_dir="${mesh_dir}"
+      app="${app}" />
+
+    <!-- ======================== arm ======================== -->
+    <!-- crs -->
+    <xacro:if value="${'crs' == arm}">
+      <xacro:crs.arm_l
+        parent_link="${arm_base_link}"
+        xyz_offset="0 0 0.069"
+        rpy_offset="0 0 0"
+        end_link="${left_arm_end_link}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}" 
+        mesh_dir="${mesh_dir}"
+        app="${app}" />
+      <xacro:crs.arm_r
+        parent_link="${arm_base_link}"
+        xyz_offset="0 0 -0.069"
+        rpy_offset="${PI} 0 0"
+        end_link="${right_arm_end_link}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        mesh_dir="${mesh_dir}"
+        app="${app}" />
+    </xacro:if>
+    <!-- crsB -->
+    <xacro:if value="${'crsB' == arm}">
+      <xacro:crsB.arm_l
+        parent_link="${arm_base_link}"
+        xyz_offset="0 0 0.069"
+        rpy_offset="0 0 0"
+        end_link="${left_arm_end_link}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        mesh_dir="${mesh_dir}"
+        app="${app}" />
+      <xacro:crsB.arm_r
+        parent_link="${arm_base_link}"
+        xyz_offset="0 0 -0.069"
+        rpy_offset="${PI} 0 0"
+        end_link="${right_arm_end_link}"
+        visual_type="${visual_type}"
+        collision_type="${collision_type}"
+        mesh_dir="${mesh_dir}"
+        app="${app}" />
+    </xacro:if>
+
+    <!-- ======================== gripper ======================== -->
+    <xacro:gripper
+      lgripper="${lgripper}"
+      rgripper="${rgripper}"
+      left_arm_end_link="${left_arm_end_link}"
+      right_arm_end_link="${right_arm_end_link}"
+      visual_type="${visual_type}"
+      collision_type="${collision_type}"
+      mesh_dir="${mesh_dir}"
+      app="${app}" />
+
+  </xacro:macro>
+</robot>

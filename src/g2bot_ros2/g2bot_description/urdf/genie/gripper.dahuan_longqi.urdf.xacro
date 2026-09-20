@@ -1,0 +1,461 @@
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro
+    name="gripper_l"
+    params="tf_prefix parent_link xyz_offset rpy_offset visual_type collision_type mesh_dir app">
+
+    <link
+      name="gripper_l_base_link">
+      <inertial>
+        <origin
+          xyz="0.0010406 0.103584 0.0242053"
+          rpy="0 0 0" />
+        <mass
+          value="1.7864691078391017" />
+        <inertia
+          ixx="0.001"
+          ixy="0.0"
+          ixz="0.0"
+          iyy="0.001"
+          iyz="0.0"
+          izz="0.001" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <xacro:if value="${visual_type == 'fbx'}">
+            <mesh
+              filename="${mesh_dir}/gripper/dahuan_longqi/base_link_l.fbx" />
+          </xacro:if>
+          <xacro:if value="${visual_type == 'stl'}">
+            <mesh
+              filename="${mesh_dir}/gripper/dahuan_longqi/base_link_l.STL" />
+          </xacro:if>
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="gripper_l_base_link_convex_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/gripper/dahuan_longqi/base_link_l.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="gripper_l_base_link_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <link
+      name="gripper_l_outer_link1">
+      <inertial>
+        <origin
+          xyz="0.0 0.0 0.0"
+          rpy="0 0 0" />
+        <mass
+          value="0.0" />
+        <inertia
+          ixx="0.0001"
+          ixy="0.0"
+          ixz="0.0"
+          iyy="0.0001"
+          iyz="0.0"
+          izz="0.0001" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_longqi/finger1_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="gripper_l_outer_link1_convex_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/gripper/dahuan_longqi/finger1_link.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="gripper_l_outer_link1_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <link
+      name="gripper_l_inner_link1">
+      <inertial>
+        <origin
+          xyz="0.0 0.0 0.0"
+          rpy="0 0 0" />
+        <mass
+          value="0.0" />
+        <inertia
+          ixx="0.0001"
+          ixy="0.0"
+          ixz="0.0"
+          iyy="0.0001"
+          iyz="0.0"
+          izz="0.0001" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_longqi/finger2_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="gripper_l_inner_link1_convex_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/gripper/dahuan_longqi/finger2_link.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="gripper_l_inner_link1_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint
+      name="idx41_gripper_l_outer_joint1"
+      type="prismatic">
+      <origin
+        xyz="-0.013 0.14829 0.034292"
+        rpy="0 ${PI} 0" />
+      <parent
+        link="gripper_l_base_link" />
+      <child
+        link="gripper_l_outer_link1" />
+      <axis
+        xyz="0 0 -1" />
+      <limit
+        lower="0"
+        upper="0.025"
+        effort="0"
+        velocity="0" />
+      <mimic
+        joint="idx31_gripper_l_inner_joint1"
+        multiplier="-1"
+        offset="0" />
+    </joint>
+    <joint
+      name="idx31_gripper_l_inner_joint1"
+      type="prismatic">
+      <origin
+        xyz="0.013 0.14829 0.0074916"
+        rpy="0 ${PI} 0" />
+      <parent
+        link="gripper_l_base_link" />
+      <child
+        link="gripper_l_inner_link1" />
+      <axis
+        xyz="0 0 -1" />
+      <limit
+        lower="0"
+        upper="0.025"
+        effort="0"
+        velocity="0" />
+    </joint>
+
+    <!-- Gripper Connector -->
+    <joint
+      name="idx51_ee_l_joint"
+      type="fixed">
+      <origin
+        xyz="${xyz_offset}"
+        rpy="${rpy_offset}" />
+      <parent
+        link="${parent_link}" />
+      <child
+        link="gripper_l_base_link" />
+      <axis
+        xyz="0 0 0" />
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro
+    name="gripper_r"
+    params="tf_prefix parent_link xyz_offset rpy_offset visual_type collision_type mesh_dir app">
+
+    <link
+      name="gripper_r_base_link">
+      <inertial>
+        <origin
+          xyz="-0.00962902 -0.108448 0.0355731"
+          rpy="0 0 0" />
+        <mass
+          value="1.7306662915118964" />
+        <inertia
+          ixx="0.001"
+          ixy="0.0"
+          ixz="0.0"
+          iyy="0.001"
+          iyz="0.0"
+          izz="0.001" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <xacro:if value="${visual_type == 'fbx'}">
+            <mesh
+              filename="${mesh_dir}/gripper/dahuan_longqi/base_link_r.fbx" />
+          </xacro:if>
+          <xacro:if value="${visual_type == 'stl'}">
+            <mesh
+              filename="${mesh_dir}/gripper/dahuan_longqi/base_link_r.STL" />
+          </xacro:if>
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <!-- <collision>
+        <origin
+          xyz="0.125 0 0.165"
+          rpy="${PI_2} 0 ${PI_2}" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/environment/longqi_pad.STL" />
+        </geometry>
+      </collision> -->
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="gripper_r_base_link_convex_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/gripper/dahuan_longqi/base_link_r.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="gripper_r_base_link_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <link
+      name="gripper_r_outer_link1">
+      <inertial>
+        <origin
+          xyz="0.0 0.0 0.0"
+          rpy="0 0 0" />
+        <mass
+          value="0.0" />
+        <inertia
+          ixx="0.0001"
+          ixy="0.0"
+          ixz="0.0"
+          iyy="0.0001"
+          iyz="0.0"
+          izz="0.0001" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_longqi/finger1_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="gripper_r_outer_link1_convex_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/gripper/dahuan_longqi/finger1_link.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="gripper_r_outer_link1_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <link
+      name="gripper_r_inner_link1">
+      <inertial>
+        <origin
+          xyz="0.0 0.0 0.0"
+          rpy="0 0 0" />
+        <mass
+          value="0.0" />
+        <inertia
+          ixx="0.0001"
+          ixy="0.0"
+          ixz="0.0"
+          iyy="0.0001"
+          iyz="0.0"
+          izz="0.0001" />
+      </inertial>
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/gripper/dahuan_longqi/finger2_link.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <xacro:if value="${collision_type == 'visual'}">
+        <collision name="gripper_r_inner_link1_convex_0">
+          <origin
+            xyz="0 0 0"
+            rpy="0 0 0" />
+          <geometry>
+            <mesh
+              filename="${mesh_dir}/gripper/dahuan_longqi/finger2_link.STL" />
+          </geometry>
+        </collision>
+        <collision_checking>
+          <convex name="gripper_r_inner_link1_convex_0" />
+        </collision_checking>
+      </xacro:if>
+    </link>
+    <joint
+      name="idx81_gripper_r_outer_joint1"
+      type="prismatic">
+      <origin
+        xyz="0.013 -0.14829 0.03429"
+        rpy="-${PI} 0 0" />
+      <parent
+        link="gripper_r_base_link" />
+      <child
+        link="gripper_r_outer_link1" />
+      <axis
+        xyz="0 0 -1" />
+      <limit
+        lower="0"
+        upper="0.025"
+        effort="0"
+        velocity="0" />
+      <mimic
+        joint="idx71_gripper_r_inner_joint1"
+        multiplier="-1"
+        offset="0" />
+    </joint>
+    <joint
+      name="idx71_gripper_r_inner_joint1"
+      type="prismatic">
+      <origin
+        xyz="-0.013 -0.14829 0.00749"
+        rpy="${PI} 0 0" />
+      <parent
+        link="gripper_r_base_link" />
+      <child
+        link="gripper_r_inner_link1" />
+      <axis
+        xyz="0 0 -1" />
+      <limit
+        lower="0"
+        upper="0.025"
+        effort="0"
+        velocity="0" />
+    </joint>
+
+    <!-- Gripper Connector -->
+    <joint
+      name="idx91_ee_r_joint"
+      type="fixed">
+      <origin
+        xyz="${xyz_offset}"
+        rpy="${rpy_offset}" />
+      <parent
+        link="${parent_link}" />
+      <child
+        link="gripper_r_base_link" />
+      <axis
+        xyz="0 0 0" />
+    </joint>
+
+  </xacro:macro>
+
+  <xacro:macro
+    name="workspace"
+    params="parent_link xyz_offset rpy_offset">
+    <link
+      name="workspace">
+      <visual>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/scene/longqi/longqi_scene.STL" />
+        </geometry>
+        <material
+          name="">
+          <color
+            rgba="0.86667 0.86667 0.8902 1" />
+        </material>
+      </visual>
+      <!--collision>
+        <origin
+          xyz="0 0 0"
+          rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="${mesh_dir}/scene/longqi/longqi_scene.STL" />
+        </geometry>
+      </collision-->
+    </link>
+    <joint
+      name="workspace_joint"
+      type="fixed">
+      <origin
+        xyz="${xyz_offset}"
+        rpy="${rpy_offset}" />
+      <parent
+        link="${parent_link}" />
+      <child
+        link="workspace" />
+      <axis
+        xyz="0 0 0" />
+    </joint>
+
+  </xacro:macro>
+</robot>

@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro
+    name="gripper_l"
+    params="tf_prefix parent_link xyz_offset rpy_offset mesh_dir">
+
+    <link name="gripper_l_base_link">
+      <inertial>
+        <origin xyz="0.062807 -0.001392 -0.018824" rpy="0 0 0"/>
+        <mass value="1.414"/>
+        <inertia ixx="0.004029" ixy="6.1E-05" ixz="0.000914" iyy="0.005481" iyz="-0.000159" izz="0.002735"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/gripper_l_base_link.STL"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.86667 0.86667 0.8902 1"/>
+        </material>
+      </visual>
+      <collision name="gripper_l_base_link_convex_00">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_base_link_collision_001.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_01">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_base_link_collision_002.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_02">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_base_link_collision_003.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_03">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_base_link_collision_004.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_04">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_base_link_collision_005.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_05">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_base_link_collision_006.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_06">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_base_link_collision_007.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_07">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_base_link_collision_008.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_08">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_base_link_collision_009.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_base_link_convex_09">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_base_link_collision_010.STL"/>
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_l_base_link_convex_00"/>
+        <convex name="gripper_l_base_link_convex_01"/>
+        <convex name="gripper_l_base_link_convex_02"/>
+        <convex name="gripper_l_base_link_convex_03"/>
+        <convex name="gripper_l_base_link_convex_04"/>
+        <convex name="gripper_l_base_link_convex_05"/>
+        <convex name="gripper_l_base_link_convex_06"/>
+        <convex name="gripper_l_base_link_convex_07"/>
+        <convex name="gripper_l_base_link_convex_08"/>
+        <convex name="gripper_l_base_link_convex_09"/>
+      </collision_checking>
+    </link>
+
+    <link name="gripper_l_inner_link1">
+      <inertial>
+        <origin xyz="0.004196 -0.009864 0.035875" rpy="0 0 0"/>
+        <mass value="0.085656"/>
+        <inertia ixx="0.000154" ixy="-7E-06" ixz="-6E-06" iyy="8.6E-05" iyz="-2.3E-05" izz="7.9E-05"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/gripper_l_link1.STL"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.86667 0.86667 0.8902 1"/>
+        </material>
+      </visual>
+      <collision name="gripper_l_inner_link1_convex_00">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_link1_collision_001.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_inner_link1_convex_01">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_link1_collision_002.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_inner_link1_convex_02">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_link1_collision_003.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_inner_link1_convex_03">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_link1_collision_004.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_l_inner_link1_convex_04">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_l_link1_collision_005.STL"/>
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_l_inner_link1_convex_00"/>
+        <convex name="gripper_l_inner_link1_convex_01"/>
+        <convex name="gripper_l_inner_link1_convex_02"/>
+        <convex name="gripper_l_inner_link1_convex_03"/>
+        <convex name="gripper_l_inner_link1_convex_04"/>
+      </collision_checking>
+    </link>
+
+    <joint name="idx31_gripper_l_inner_joint1" type="prismatic">
+      <origin xyz="0.114 0 -0.126" rpy="0 0 0"/>
+      <parent link="gripper_l_base_link"/>
+      <child link="gripper_l_inner_link1"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="0" upper="0.0947" effort="240" velocity="0.0947"/>
+    </joint>
+
+    <!-- Gripper Connector -->
+    <joint name="idx51_ee_l_joint" type="fixed">
+      <origin xyz="${xyz_offset}" rpy="${rpy_offset}"/>
+      <parent link="${parent_link}"/>
+      <child link="gripper_l_base_link"/>
+      <axis xyz="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro
+    name="gripper_r"
+    params="tf_prefix parent_link xyz_offset rpy_offset mesh_dir">
+
+    <link name="gripper_r_base_link">
+      <inertial>
+        <origin xyz="0.062712 0.001391 -0.018954" rpy="0 0 0"/>
+        <mass value="1.414"/>
+        <inertia ixx="0.004028" ixy="-6.1E-05" ixz="0.000921" iyy="0.005483" iyz="0.000161" izz="0.002742"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/gripper_r_base_link.STL"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.86667 0.86667 0.8902 1"/>
+        </material>
+      </visual>
+      <collision name="gripper_r_base_link_convex_00">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_base_link_collision_001.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_01">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_base_link_collision_002.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_02">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_base_link_collision_003.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_03">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_base_link_collision_004.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_04">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_base_link_collision_005.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_05">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_base_link_collision_006.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_06">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_base_link_collision_007.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_07">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_base_link_collision_008.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_07">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_base_link_collision_009.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_base_link_convex_07">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_base_link_collision_010.STL"/>
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_r_base_link_convex_00"/>
+        <convex name="gripper_r_base_link_convex_01"/>
+        <convex name="gripper_r_base_link_convex_02"/>
+        <convex name="gripper_r_base_link_convex_03"/>
+        <convex name="gripper_r_base_link_convex_04"/>
+        <convex name="gripper_r_base_link_convex_05"/>
+        <convex name="gripper_r_base_link_convex_06"/>
+        <convex name="gripper_r_base_link_convex_07"/>
+        <convex name="gripper_r_base_link_convex_08"/>
+        <convex name="gripper_r_base_link_convex_09"/>
+      </collision_checking>
+    </link>
+
+    <link name="gripper_r_inner_link1">
+      <inertial>
+        <origin xyz="0.00417740277282706 0.0107722957446938 0.0358374628833465" rpy="0 0 0"/>
+        <mass value="0.0781420592754781"/>
+        <inertia ixx="0.000138745500152488" ixy="-5.66149108240872E-06" ixz="5.08201564404806E-06" iyy="8.05803460397991E-05" iyz="-1.9392648964741E-05" izz="6.78458743509542E-05"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/gripper_r_link1.STL"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.866666666666667 0.866666666666667 0.890196078431372 1"/>
+        </material>
+      </visual>
+      <collision name="gripper_r_inner_link1_convex_00">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_link1_collision_001.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_inner_link1_convex_01">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_link1_collision_002.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_inner_link1_convex_02">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_link1_collision_003.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_inner_link1_convex_03">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_link1_collision_004.STL"/>
+        </geometry>
+      </collision>
+      <collision name="gripper_r_inner_link1_convex_04">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${mesh_dir}/gripper/g2u_t1/convex/gripper_r_link1_collision_005.STL"/>
+        </geometry>
+      </collision>
+      <collision_checking>
+        <convex name="gripper_r_inner_link1_convex_00"/>
+        <convex name="gripper_r_inner_link1_convex_01"/>
+        <convex name="gripper_r_inner_link1_convex_02"/>
+        <convex name="gripper_r_inner_link1_convex_03"/>
+        <convex name="gripper_r_inner_link1_convex_04"/>
+      </collision_checking>
+    </link>
+
+    <joint name="idx71_gripper_r_inner_joint1" type="prismatic">
+      <origin xyz="0.114 0 -0.126" rpy="0 0 0"/>
+      <parent link="gripper_r_base_link"/>
+      <child link="gripper_r_inner_link1"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="0" upper="0.0947" effort="240" velocity="0.0947"/>
+    </joint>
+
+    <!-- Gripper Connector -->
+    <joint name="idx91_ee_r_joint" type="fixed">
+      <origin xyz="${xyz_offset}" rpy="${rpy_offset}"/>
+      <parent link="${parent_link}"/>
+      <child link="gripper_r_base_link"/>
+      <axis xyz="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+</robot>
