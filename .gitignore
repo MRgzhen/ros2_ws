@@ -36,3 +36,6 @@ Thumbs.db
 # Local environment files
 .env
 .env.*
+
+# Local test images
+img/

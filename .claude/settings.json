@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(grep -E '__pycache__|\\\\.pyc$|/build/|/install/|/log/')",
+      "Bash(git commit *)",
+      "Bash(git config *)",
+      "Bash(git push *)",
+      "Bash(gh auth *)",
+      "Read(//home/gz/.ssh/**)",
+      "Bash(ssh -T git@github.com -o StrictHostKeyChecking=accept-new -o ConnectTimeout=8)",
+      "Bash(git remote *)"
+    ]
+  }
+}
