@@ -32,7 +32,7 @@ class ImageSub(Node):
         # 注册参数
         self.declare_parameter("image_topic", "/camera_head/color/image_raw")
         image_topic = str(self.get_parameter("image_topic").value)
-
+        self.get_logger().info(f"11Image subscriber node started :{image_topic}")
         # 订阅
         qos = QoSProfile(
             reliability=QoSReliabilityPolicy.BEST_EFFORT,
@@ -45,15 +45,18 @@ class ImageSub(Node):
 
     def image_callback(self, msg):
         self.frame_count += 1
-
+        self.get_logger().info("11Image subscriber node started")
         # 转换成OpenCV图像
         try:
             frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-        except Exception as e:
+        except (TypeError, ValueError, cv2.error) as e:
             self.get_logger().error(f"Error processing image message: {e}")
             return
+        self.get_logger().info("222 subscriber node started")
 
-        # 显示图像
+        # 显示图像（放大 2 倍便于观看）
+        h, w = frame.shape[:2]
+        frame = cv2.resize(frame, (w * 2, h * 2), interpolation=cv2.INTER_LINEAR)
         cv2.imshow("Image", frame)
         self.get_logger().info(f"Processing frame {frame.shape}")
         key = cv2.waitKey(1) & 0xFF
