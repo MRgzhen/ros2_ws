@@ -1,24 +1,49 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  <!-- ================================================================
+       Intel RealSense D435 相机 + 安装立柱（仅 use_camera=true 且
+       use_gazebo=true 时才生成以下内容）
+       坐标约定 REP103：X 前、Y 左、Z 上；单位米 / 弧度
+       结构树：
+         base_link（机械臂底盘）
+          └─ torso_link               0.5m 安装立柱
+              └─ camera_head_link     D435 相机本体（带俯角+侧向安装角）
+                  ├─ depth_frame  / depth_optical_frame    深度镜头
+                  ├─ infra1_frame / infra1_optical_frame   红外1镜头
+                  ├─ infra2_frame / infra2_optical_frame   红外2镜头
+                  └─ color_frame  / color_optical_frame    彩色镜头
+       gz 仿真传感器（彩色+深度+点云一体）挂在 camera_head_link，见文件末尾
+       ================================================================ -->
+
   <xacro:arg name="use_camera" default="true"/>
   <xacro:arg name="use_gazebo" default="true"/>
   <xacro:arg name="prefix" default=""/>
 
   <xacro:if value="${'true' == '$(arg use_camera)' and 'true' == '$(arg use_gazebo)'}">
 
+    <!-- ===================== 模型参数 ===================== -->
+
     <xacro:property name="M_PI" value="3.1415926535897931" />
 
+    <!-- D435 外形尺寸（米）：宽(左右Y) / 高(上下Z) / 厚(前后X)，用于碰撞盒 -->
     <xacro:property name="d435_cam_width" value="0.090"/>
     <xacro:property name="d435_cam_height" value="0.025"/>
     <xacro:property name="d435_cam_depth" value="0.02505"/>
 
+    <!-- 各镜头相对深度镜头的安装偏移（沿相机 Y 轴，Y 正=相机左侧）：
+         红外1 与深度镜头重合；红外2 偏右 50mm；彩色镜头偏左 15mm -->
     <xacro:property name="d435_cam_depth_to_infra1_offset" value="0.0"/>
     <xacro:property name="d435_cam_depth_to_infra2_offset" value="-0.050"/>
     <xacro:property name="d435_cam_depth_to_color_offset" value="0.015"/>
 
-    <xacro:property name="camera_tilt_angle_deg" value="60"/>
+    <!-- 相机俯角（度）：0=水平向前，90=垂直向下。
+         想调整相机看得远/近，只改这一个值即可，下方自动换算成弧度 -->
+    <xacro:property name="camera_tilt_angle_deg" value="32"/>
 
+    <!-- ============ torso_link：相机安装立柱 ============
+         一根 0.5m 高的细立柱（半径 5mm）+ 底部固定盒（150×100×60mm），
+         立柱顶端（高 0.5m 处）安装相机；质量/惯量供 gz 物理仿真使用 -->
     <link name="torso_link">
       <inertial>
         <origin xyz="0 0 0.50" />
@@ -57,18 +82,30 @@
       </collision>
     </link>
 
+    <!-- 立柱与机械臂底盘(base_link)的固定关节：
+         立柱装在底盘坐标 x=0.22(前方), y=-0.45(右侧), z=0 处。
+         相机在底盘右前方向左(+Y)俯拍，正好覆盖机械臂工作区 -->
     <joint name="$(arg prefix)base_link_to_torso_link" type="fixed">
       <parent link="$(arg prefix)base_link"/>
       <child link="torso_link"/>
-      <origin xyz="0.22 -0.30 0" rpy="0 0 0"/>
+      <origin xyz="0.22 -0.45 0" rpy="0 0 0"/>
     </joint>
 
+    <!-- 相机安装关节：决定相机朝向（本文件最关键的一行姿态）
+         xyz = 立柱顶端抬高 0.50m，沿立柱 y 微调 +0.01
+         rpy = (roll=0, pitch=俯角32°下俯, yaw=90°侧转)
+               pitch 正值 → 光轴向下俯视地面
+               yaw 90°   → 相机从默认朝前(+X) 转为朝 +Y（指向机械臂方向）
+         改俯角只改上方 camera_tilt_angle_deg，这里自动生效 -->
     <joint name="camera_head_joint" type="fixed">
       <parent link="torso_link"/>
       <child link="camera_head_link" />
       <origin xyz="0 0.01 0.50" rpy="0.0 ${camera_tilt_angle_deg * M_PI / 180} ${M_PI/2}"/>
     </joint>
 
+    <!-- ============ camera_head_link：D435 相机本体 ============
+         外观用 d435.stl 网格（在 mycobot_description/meshes/d435/ 下），
+         碰撞用简化包围盒；文件末尾的 gz rgbd 传感器也挂在这个 link 上 -->
     <link name="camera_head_link">
       <visual>
         <origin xyz="0 0 0" rpy="${M_PI/2} 0.0 ${M_PI/2}"/>
@@ -92,6 +129,11 @@
       </inertial>
     </link>
 
+    <!-- ============ 深度镜头坐标系（无实体零件，纯坐标框架） ============
+         depth_frame：深度镜头光心，与相机本体原点重合，REP103 朝向(X前Y左Z上)
+         depth_optical_frame：光学约定坐标系(Z前 X右 Y下)，由 rpy=(-90°,0,-90°)
+         从 depth_frame 旋转而来。图像/点云数据按光学约定计算，视觉算法
+         (标定、solvePnP、点云处理) 一律使用 optical 坐标 -->
     <joint name="camera_head_depth_joint" type="fixed">
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <parent link="camera_head_link"/>
@@ -106,6 +148,8 @@
     </joint>
     <link name="camera_head_depth_optical_frame"/>
 
+    <!-- 红外1镜头坐标系：与深度镜头同位置（偏移 0），双目测深的一只"眼睛"；
+         optical 帧同样是 REP103→光学约定 的 90° 旋转 -->
     <joint name="camera_head_infra1_joint" type="fixed">
       <origin xyz="0 ${d435_cam_depth_to_infra1_offset} 0" rpy="0 0 0" />
       <parent link="camera_head_link" />
@@ -120,6 +164,8 @@
     </joint>
     <link name="camera_head_infra1_optical_frame"/>
 
+    <!-- 红外2镜头坐标系：相对深度镜头沿相机 Y 偏 -50mm（右侧），
+         与红外1构成双目基线，用于立体匹配测深度 -->
     <joint name="camera_head_infra2_joint" type="fixed">
       <origin xyz="0 ${d435_cam_depth_to_infra2_offset} 0" rpy="0 0 0" />
       <parent link="camera_head_link" />
@@ -134,6 +180,8 @@
     </joint>
     <link name="camera_head_infra2_optical_frame"/>
 
+    <!-- 彩色镜头坐标系：相对深度镜头沿相机 Y 偏 +15mm（左侧），
+         image_sub 订阅的彩色图就对应这个镜头 -->
     <joint name="camera_head_color_joint" type="fixed">
       <origin xyz="0 ${d435_cam_depth_to_color_offset} 0" rpy="0 0 0" />
       <parent link="camera_head_link" />
@@ -148,6 +196,19 @@
     </joint>
     <link name="camera_head_color_optical_frame"/>
 
+    <!-- ============ Gazebo 仿真传感器：rgbd_camera（彩色+深度+点云三合一） ============
+         挂在 camera_head_link 上，经 ros_gz 桥接后在 ROS 侧输出：
+           彩色图  /camera_head/color/image_raw
+           深度图  /camera_head/depth/image_rect_raw（32FC1 浮点，单位米）
+           点云    /camera_head/depth/color/points
+         主要参数：
+           horizontal_fov 1.5184 rad ≈ 87°（水平视场角）
+           424×240 分辨率，5Hz 输出
+           clip 量程 0.05~1.5m（更近/更远的点视为无效，深度为 inf）
+         gz_frame_id：ROS 消息头部的 frame_id 写哪个坐标系。
+           注意：gz 输出的图像/点云数据按"光学约定"(Z前X右Y下)计算，
+           若 RViz 中点云方向不对（如立起来），应把本值改为
+           camera_head_depth_optical_frame -->
     <gazebo reference="camera_head_link">
       <sensor name="camera_head" type="rgbd_camera">
         <camera>
