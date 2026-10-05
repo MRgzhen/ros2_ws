@@ -26,6 +26,8 @@ setup(
             "listener = mycobot_learn.listener:main",
             "talk = mycobot_learn.talk:main",
             "image_sub = mycobot_learn.image_sub:main",
+            "image_sub1 = mycobot_learn.image_sub1:main",
+            "image_sub11 = mycobot_learn.image_sub11:main",
         ],
     },
 )
