@@ -59,9 +59,15 @@ class ImageSub2(Node):
         lower = np.array([pos("H_low"), pos("S_low"), pos("V_low")])
         upper = np.array([pos("H_up"), pos("S_up"), pos("V_up")])
         mask = cv2.inRange(hsv_image, lower, upper)
-        cv_image_new = cv2.bitwise_and(cv_image, cv_image, mask=mask)
-        cv2.imshow("HSV", hsv_image)
-        cv2.imshow("cv_image_new", cv_image_new)
+        # cv_image_new = cv2.bitwise_and(cv_image, cv_image, mask=mask)
+        # cv2.imshow("HSV", hsv_image)
+        # cv2.imshow("cv_image_new", cv_image_new)
+
+        # 形态学去噪：开运算去掉零星白点，闭运算填补目标内部小洞
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+        cv2.imshow("Mask", mask)
 
         # 轮廓检测
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
