@@ -28,6 +28,9 @@ setup(
             "image_sub = mycobot_learn.image_sub:main",
             "image_sub1 = mycobot_learn.image_sub1:main",
             "image_sub11 = mycobot_learn.image_sub11:main",
+            "image_sub2 = mycobot_learn.image_sub2:main",
+            "image_sub22 = mycobot_learn.image_sub22:main",
+            "image_sub3 = mycobot_learn.image_sub3:main",
         ],
     },
 )
