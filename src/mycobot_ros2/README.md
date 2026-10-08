@@ -10,6 +10,7 @@ mycobot 280 机械臂 ROS 2 仿真学习项目，按阶段递进：
 | 一 | `robotg` | 仅启动 Gazebo 仿真 |
 | 二 | `robotm` | 一键启动 Gazebo + MoveIt + RViz |
 | 三 | `robotg` + `image_sub` | 视觉入门：订阅相机图像、实时显示与按键存图 |
+| 四 | `robotm` + `image_sub3` + `arm_move_to_object` | 视觉引导抓取：检测→TF→MoveIt 规划执行→夹取 |
 
 > `build`、`robotg`、`robotm` 为 `~/.bashrc` 中定义的别名，配置见下文环境准备。
 
@@ -112,6 +113,65 @@ ros2 run mycobot_learn image_sub --ros-args -p image_topic:=/camera_head/depth/i
 
 后续视觉练习路线（HSV 分割 → solvePnP → 点云/ICP → 联动 MoveIt）见 [docs/视觉练习步骤.md](docs/视觉练习步骤.md)。
 
+## 阶段四：视觉引导抓取（ArmMover 公共封装）
+
+视觉链路（HSV 检测 → solvePnP → TF 广播，见 `image_sub1` → `image_sub3`）打通后，
+用公共封装 `ArmMover` 把 MoveIt（moveit_py）+ TF + 夹爪串成"检测 → 运动 → 夹取"：
+
+```
+[任意视觉节点]                 [库层 arm_mover.py]                [Gazebo]
+ image_sub3 / 未来的     ──►   ArmMover                          arm_controller
+ YOLO、SAM ...                 ├─ TF 查询 object_frame→base_link  gripper_action_controller
+   唯一契约：广播              ├─ moveit_py 规划+执行
+   object_frame TF             └─ 夹爪/附着搬运封装
+                                       ▲ import
+                               [节点层 arm_move_to_object.py]
+```
+
+**对接契约（换视觉实现只动视觉侧）**：往 TF 广播 `object_frame`（范本
+`image_sub3.publish_tf`），或发 `PointStamped` 到 `/vision/detected_point`
+（`target_source:=topic`）。
+
+文件（`mycobot_learn/mycobot_learn/`）：
+
+- `arm_mover.py`：公共封装库——TF 查询、规划执行（`move_to_pose` / `move_to_named` /
+  `move_to_frame` / `hover_and_descend`）、夹爪开合、附着搬运，任何脚本 import 即用
+- `arm_hello_moveit.py`：演示①，第一个 MoveIt 程序（ready → 固定点位 → home）
+- `arm_move_to_object.py`：演示②，完整抓取流程（工作空间护栏、悬停、竖直下降、夹取、
+  可选附着提起）
+
+运行（三个终端）：
+
+```bash
+robotm                                              # 终端1：Gazebo + MoveIt + RViz
+ros2 run mycobot_learn image_sub3                   # 终端2：视觉检测并广播 object_frame
+ros2 run tf2_ros tf2_echo base_link object_frame    # 读物体坐标，标定 grasp_z_offset
+
+# 终端3：按序验证
+ros2 run mycobot_learn arm_hello_moveit --ros-args -p use_sim_time:=true
+ros2 run mycobot_learn arm_move_to_object --ros-args -p use_sim_time:=true -p dry_run:=true
+ros2 run mycobot_learn arm_move_to_object --ros-args -p use_sim_time:=true -p grasp_z_offset:=0.10
+```
+
+先跑 `arm_hello_moveit` 验证 moveit_py 链路，再 `dry_run` 在 RViz 检查轨迹终点
+是否在木棒正上方、夹爪是否竖直朝下，最后实跑。
+
+常用参数（完整见 `arm_move_to_object.py` 头部注释）：
+
+| 参数 | 默认 | 说明 |
+| --- | --- | --- |
+| `grasp_z_offset` | 0.0 | 抓取点相对物体中心的 z 偏移（tf2_echo 实测标定） |
+| `hover_height` | 0.06 | 悬停点高于抓取点的高度 |
+| `tcp_offset` | 0.10 | flange 原点到指尖距离 |
+| `dry_run` | false | 只规划不执行，RViz 查轨迹 |
+| `do_grasp` | true | 是否闭合夹爪 |
+| `lift_after_grasp` | false | 抓后附着物体并提起（MoveIt 层搬运） |
+| `target_source` | tf | tf / topic（后者订阅 `/vision/detected_point`） |
+
+抓取策略：0.03m 直径圆柱顶面太细，夹爪对准轴心竖直下降，手指跨两侧**夹上部侧壁**。
+已知坑：严格竖直姿态可能触发 KDL "no valid states for goal tree"——本流程从 ready
+（已竖直朝下）出发规避；仍失败时调 `grasp_yaw` 或加大 `planning_time`。
+
 ## 仿真相机（D435）
 
 - 分辨率 424×240，5Hz，深度上限 1.5m
@@ -124,7 +184,7 @@ mycobot_ros2/
 ├── mycobot_bringup/        # 一键启动脚本（Gazebo / Gazebo+MoveIt）
 ├── mycobot_description/    # URDF/Xacro、mesh、RViz 配置（含 D435 相机模型）
 ├── mycobot_gazebo/         # 仿真 launch、世界文件、桥接配置
-├── mycobot_learn/          # 学习节点：listener/talk（话题入门）、image_sub（视觉入门）
+├── mycobot_learn/          # 学习节点：listener/talk、image_sub 系列（视觉）、arm_mover/arm_move_to_object（视觉引导抓取）
 ├── mycobot_moveit_config/  # MoveIt2 配置与 launch
 └── docs/                   # 视觉练习步骤等文档
 ```

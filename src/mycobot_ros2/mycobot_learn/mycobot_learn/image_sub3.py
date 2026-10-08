@@ -120,7 +120,11 @@ class ImageSub3(Node):
         self.K = np.array(msg.k, dtype=np.float64).reshape(3, 3)
         # gz 桥接出来的 D 可能为空数组，solvePnP 需要 5 个畸变系数
         self.D = np.array(msg.d, dtype=np.float64) if msg.d else np.zeros(5)
-        if msg.header.frame_id:
+        # gz 桥接的 camera_info 自带的是 Gazebo 相机 link 名（REP103 朝向
+        # x前y左z上，如 camera_head_link），而 solvePnP 的 tvec/rvec 是光学
+        # 约定（z前x右y下）——只能挂光学系父帧，否则 TF 差 90° 旋转，物体
+        # z 会被串到 1m 多高。只信 _optical_frame 后缀，其余保持 URDF 默认
+        if msg.header.frame_id.endswith("_optical_frame"):
             self.parent_frame = msg.header.frame_id
         fx, fy, cx, cy = msg.k[0], msg.k[1], msg.k[2], msg.k[5]
         self.get_logger().info(

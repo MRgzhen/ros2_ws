@@ -31,6 +31,8 @@ setup(
             "image_sub2 = mycobot_learn.image_sub2:main",
             "image_sub22 = mycobot_learn.image_sub22:main",
             "image_sub3 = mycobot_learn.image_sub3:main",
+            "arm_hello_moveit = mycobot_learn.arm_hello_moveit:main",
+            "arm_move_to_object = mycobot_learn.arm_move_to_object:main",
         ],
     },
 )
