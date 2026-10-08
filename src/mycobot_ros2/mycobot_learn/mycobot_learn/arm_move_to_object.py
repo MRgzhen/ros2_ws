@@ -14,9 +14,9 @@ top_down 仍走 ready → 悬停 → 竖直下降（V1，矮物体备选）。
     side（默认，V2）水平侧抓，对齐旧 MTC demo 的几何：夹爪横着接近木棍、
         手指夹侧壁、棍顶从手腕旁边让开——0.35m 长棍唯一可行的抓法
         （顶抓时棍顶 z=0.35 必穿手腕，flange 天花板 0.22，物理无解）。
-        接近方向默认沿 base +X 轴（approach_yaw_deg=0，腕在棍子靠臂
-        一侧、从机械臂与木棍之间直线进入，腕 r≈0.14 避开基座死区与
-        棍顶），手指沿 ±y 对称跨棍。侧抓姿态 q = Rz(yaw+90°)·Rx(90°)：
+        接近方向默认 135°（base_link +y 与 -x 平分角，approach_yaw_deg
+        =135：夹爪往左后方伸入、腕在木棍右前方），手指沿接近方向垂线
+        对称跨棍。侧抓姿态 q = Rz(yaw+90°)·Rx(90°)：
         手 z 水平指向棍（approach）、手 x 水平⊥approach（手指闭合方向，
         由夹爪 URDF 手指关节轴全为 z、闭合沿 x 推出）、手 y 竖直。
     top_down    竖直顶抓（V1，只适用于矮物体如 red_cylinder_short）：
@@ -68,10 +68,10 @@ def main(args=None):
     tf_timeout = float(p("tf_timeout", 10.0))
     grasp_mode = str(p("grasp_mode", "side"))                # side=V2 水平侧抓 / top_down=V1 顶抓
     approach_backoff = float(p("approach_backoff", 0.06))    # 侧抓 pre-grasp 后退量（=直线接近段长度）
-    # 接近方向（世界系方位角）：默认 0°=沿 base +X 轴夹——腕在棍子靠臂
-    # 一侧（正 -x 向），夹爪朝 +x 直线伸入，手指沿 ±y 跨棍两侧；腕 r≈0.14
-    # 避开基座死区（径向方案腕 r≈0.05 压基座，KDL 饿死）。
-    approach_yaw_deg = float(p("approach_yaw_deg", 0.0))
+    # 接近方向（世界系方位角）：默认 135°=base_link +y 与 -x 平分角——
+    # 夹爪沿该方向直线伸向木棍，腕在木棍右前方，手指沿接近方向垂线跨
+    # 棍两侧。候选 yaw_offsets_deg 在此基础上微调。
+    approach_yaw_deg = float(p("approach_yaw_deg", 135.0))
     # 相对 approach_yaw_deg 的微调候选（规划失败依次尝试）
     yaw_offsets_deg = str(p("yaw_offsets_deg", "0.0 -15.0 15.0 -30.0 30.0"))
     lift_height = float(p("lift_height", 0.10))              # lift_after_grasp 竖直上提量
@@ -86,7 +86,7 @@ def main(args=None):
     calib_y = float(p("calib_y", 0.0))                       # 实测 y 系统性偏高 ~+0.02，传 -0.02
     object_height = float(p("object_height", 0.35))          # 场景圆柱尺寸（对齐 red_cylinder 模型）
     object_radius = float(p("object_radius", 0.015))
-    scene_margin = float(p("scene_margin", 0.02))            # 场景圆柱半径外扩：吸收视觉误差+轨迹跟踪偏差
+    scene_margin = float(p("scene_margin", 0.005))           # 场景圆柱半径外扩：吸收视觉误差+轨迹跟踪偏差
     dry_run = bool(p("dry_run", False))
     do_grasp = bool(p("do_grasp", True))
     lift_after_grasp = bool(p("lift_after_grasp", False))    # 附着提起（MoveIt 层）
@@ -140,8 +140,8 @@ def main(args=None):
 
             # ---------------- 3. 抓取位姿候选 ----------------
             if grasp_mode == "side":
-                # V2.4 水平侧抓：接近方向固定沿 base +X 轴（腕在棍子靠臂
-                # 一侧），沿"腕→物体"水平直线接近
+                # V2.4 水平侧抓：接近方向从 approach_yaw_deg 起采样
+                # （默认 135°），沿"腕→物体"水平直线接近
                 base_yaw = math.radians(approach_yaw_deg)
                 offsets = [math.radians(float(s)) for s in yaw_offsets_deg.split()]
                 pregrasp_goals, grasp_goals, yaws = [], [], []
@@ -189,7 +189,7 @@ def main(args=None):
                 if traj is None:
                     node.get_logger().error(
                         f"所有接近方向均不可达（候选 {yaw_offsets_deg}），"
-                        "试 -p approach_yaw_deg:=-90.0 换另一侧，或把物体放近一点"
+                        "试 -p approach_yaw_deg:=-45.0 换另一侧，或把物体放近一点"
                     )
                     return
                 node.get_logger().info(
@@ -227,7 +227,12 @@ def main(args=None):
                 mover.close_gripper()
                 if grasp_mode == "side":
                     node.get_logger().info("直线退回 pre-grasp（靠摩擦带住木棍）")
-                    mover.move_cartesian(pregrasp_goals[idx])
+                    if not mover.move_cartesian(pregrasp_goals[idx]):
+                        node.get_logger().warn("直线退回失败，尝试 OMPL 兜底")
+                        if not mover.move_to_pose(pregrasp_goals[idx]):
+                            # 夹着棍子横扫回 home 会把工作区掀了——停在原地更安全
+                            node.get_logger().error("退回失败，停在原地不回 home")
+                            return
 
             if lift_after_grasp:
                 node.get_logger().info("附加物体并竖直提起（MoveIt 层搬运）")

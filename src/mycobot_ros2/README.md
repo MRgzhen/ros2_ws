@@ -151,6 +151,11 @@ ros2 run tf2_ros tf2_echo base_link object_frame    # 读物体坐标，标定 g
 ros2 run mycobot_learn arm_hello_moveit --ros-args -p use_sim_time:=true
 ros2 run mycobot_learn arm_move_to_object --ros-args -p use_sim_time:=true -p dry_run:=true
 ros2 run mycobot_learn arm_move_to_object --ros-args -p use_sim_time:=true -p grasp_z_offset:=0.10
+
+
+ros2 run mycobot_learn arm_move_to_object --ros-args \
+  -p use_sim_time:=true -p approach_yaw_deg:=30.0 -p calib_y:=-0.076
+
 ```
 
 先跑 `arm_hello_moveit` 验证 moveit_py 链路，再 `dry_run` 在 RViz 检查轨迹终点

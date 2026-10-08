@@ -326,17 +326,22 @@ class ArmMover:
                        fraction_min=0.95):
         """从当前位姿直线插补到 target_pose 并执行（抓取接近/退出段专用）。
 
-        经 move_group 的 /get_cartesian_path 服务插补：OMPL 自由空间路径
+        经 move_group 的 /compute_cartesian_path 服务插补：OMPL 自由空间路径
         在目标物附近可能甩动，直线段物理可控、碰撞沿路径逐点校验。
         返回 True = 插补覆盖率达标且执行成功。
         """
         if self._carto_client is None:
-            self._carto_client = self._scene_node.create_client(
-                GetCartesianPath, "/move_group/get_cartesian_path"
-            )
-        if not self._carto_client.wait_for_service(timeout_sec=2.0):
-            self._log.error("get_cartesian_path 服务不可达（move_group 在跑吗？）")
-            return False
+            # Jazzy 这套 move_group 的笛卡尔服务挂在根命名空间
+            # （/compute_cartesian_path），旧名 /move_group/get_cartesian_path 兜底
+            for name in ("/compute_cartesian_path", "/move_group/get_cartesian_path"):
+                cand = self._scene_node.create_client(GetCartesianPath, name)
+                if cand.wait_for_service(timeout_sec=1.0):
+                    self._carto_client = cand
+                    break
+                self._scene_node.destroy_client(cand)
+            if self._carto_client is None:
+                self._log.error("compute_cartesian_path 服务不可达（move_group 在跑吗？）")
+                return False
         req = GetCartesianPath.Request()
         req.header.frame_id = target_pose.header.frame_id or self.planning_frame
         req.group_name = self.arm_group
