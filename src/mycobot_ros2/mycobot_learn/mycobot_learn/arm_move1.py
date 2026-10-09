@@ -36,8 +36,8 @@ def main(args=None):
 
     # ---------------- 参数 ----------------
     p = lambda name, default: node.declare_parameter(name, default).value
-    target_x = float(p("target_x", 0.15))  # 抓取点（base_link 系，指尖要到的位置）
-    target_y = float(p("target_y", 0.0))
+    target_x = float(p("target_x", -0.15))  # 抓取点（base_link 系，指尖要到的位置）
+    target_y = float(p("target_y", 0.15))
     target_z = float(p("target_z", 0.05))
     tcp_offset = float(p("tcp_offset", 0.10))  # flange 原点→指尖
 
@@ -75,18 +75,17 @@ def main(args=None):
 
             # ---------------- 3. 抓取流程 ----------------
             node.get_logger().info(
-                f"1/5 运动到 ready（目标 ({target_x:.3f}, {target_y:.3f}, {target_z:.3f}) m）"
+                f"1/4 运动到 ready（目标 ({target_x:.3f}, {target_y:.3f}, {target_z:.3f}) m）"
             )
             if not mover.move_to_named("ready"):
                 return
-            node.get_logger().info("2/5 张开夹爪")
+            node.get_logger().info("2/4 张开夹爪")
             mover.open_gripper()
-            node.get_logger().info("3/5 悬停到抓取点上方")
+            node.get_logger().info("3/4 悬停到抓取点上方")
             if not mover.move_to_pose(hover_goal):
                 return
-            node.get_logger().info("4/5 竖直下降到抓取点")
             if do_grasp:
-                node.get_logger().info("5/5 闭合夹爪")
+                node.get_logger().info("4/4 闭合夹爪")
                 mover.close_gripper()
 
             node.get_logger().info("回 home")
