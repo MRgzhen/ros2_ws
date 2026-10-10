@@ -29,41 +29,26 @@ int main(int argc, char * argv[])
   // Start up ROS 2
   rclcpp::init(argc, argv);
 
-  // Creates a node named "hello_moveit". The node is set up to automatically
-  // handle any settings (parameters) we might want to change later without editing the code.
   auto const node = std::make_shared<rclcpp::Node>(
     "hello_moveit",
     rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true)
   );
 
-  // Creates a "logger" that we can use to print out information or error messages
-  // as our program runs.
   auto const logger = rclcpp::get_logger("hello_moveit");
 
-  // Create the MoveIt MoveGroup Interfaces
-  // These interfaces are used to plan and execute movements, set target poses,
-  // and perform other motion-related tasks for each respective part of the robot.
-  // The use of auto allows the compiler to automatically deduce the type of variable.
-  // Source: https://github.com/moveit/moveit2/blob/main/moveit_ros/planning_interface/move_group_interface/include/moveit/move_group_interface/move_group_interface.h
   using moveit::planning_interface::MoveGroupInterface;
   auto arm_group_interface = MoveGroupInterface(node, "arm");
 
-  // Specify a planning pipeline to be used for further planning
   arm_group_interface.setPlanningPipelineId("ompl");
 
-  // Specify a planner to be used for further planning
   arm_group_interface.setPlannerId("RRTConnectkConfigDefault");
 
-  // Specify the maximum amount of time in seconds to use when planning
   arm_group_interface.setPlanningTime(1.0);
 
-  // Set a scaling factor for optionally reducing the maximum joint velocity. Allowed values are in (0,1].
   arm_group_interface.setMaxVelocityScalingFactor(1.0);
 
-  //  Set a scaling factor for optionally reducing the maximum joint acceleration. Allowed values are in (0,1].
   arm_group_interface.setMaxAccelerationScalingFactor(1.0);
 
-  // Display helpful logging messages on the terminal
   RCLCPP_INFO(logger, "Planning pipeline: %s", arm_group_interface.getPlanningPipelineId().c_str());
   RCLCPP_INFO(logger, "Planner ID: %s", arm_group_interface.getPlannerId().c_str());
   RCLCPP_INFO(logger, "Planning time: %.2f", arm_group_interface.getPlanningTime());
