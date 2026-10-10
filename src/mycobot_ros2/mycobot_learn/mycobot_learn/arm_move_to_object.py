@@ -1,9 +1,9 @@
 """演示②：视觉引导抓取——移动到检测物体并夹取（完整流程）。
 
-在 ArmMover 公共封装上跑通"视觉 → 运动 → 夹取"整条链路。视觉侧对接
-两种来源（参数 target_source）：
-    tf    等 TF 里出现 object_frame（image_sub3 / 未来的 YOLO、SAM 同名广播即可）
-    topic 等 /vision/detected_point 一条 PointStamped（base_link 系，旧 color_detector 习惯）
+在 ArmMover 公共封装上跑通"视觉 → 运动 → 夹取"整条链路。目标来源单一：
+等 /vision/detected_point 一条 PointStamped（base_link 系）——image_sub3
+把 solvePnP 结果换算到 base_link 并做 calib_x/calib_y 校准后直接发布，
+本节点不查 TF、不算校准（换 YOLO/SAM 时同名同格式发这个话题即可对接）。
 
 流程（side，V2.1）：取目标 → 场景建障碍 → 原位张爪 → 从当前位置直接
 规划到 pre-grasp（绕轴采样选向，不经 ready）→ 直线插补接近到抓取位 →
@@ -16,9 +16,10 @@ top_down 仍走 ready → 悬停 → 竖直下降（V1，矮物体备选）。
         （顶抓时棍顶 z=0.35 必穿手腕，flange 天花板 0.22，物理无解）。
         接近方向默认 135°（base_link +y 与 -x 平分角，approach_yaw_deg
         =135：夹爪往左后方伸入、腕在木棍右前方），手指沿接近方向垂线
-        对称跨棍。侧抓姿态 q = Rz(yaw+90°)·Rx(90°)：
-        手 z 水平指向棍（approach）、手 x 水平⊥approach（手指闭合方向，
-        由夹爪 URDF 手指关节轴全为 z、闭合沿 x 推出）、手 y 竖直。
+        对称跨棍。法兰目标位姿的构造——含 URDF 安装旋转修正、高度补偿
+        （gripper_base 相对法兰转了 1.579 rad，不修正则手指竖直朝下、
+        指尖戳到检测点下方）——统一收口在 grasp_geometry（腕下翻构型，
+        可达性见其注释），本节点不算几何。
     top_down    竖直顶抓（V1，只适用于矮物体如 red_cylinder_short）：
         对准轴心下降，手指跨两侧夹上部侧壁。
 
@@ -30,13 +31,14 @@ top_down 仍走 ready → 悬停 → 竖直下降（V1，矮物体备选）。
     ros2 run mycobot_learn arm_move_to_object --ros-args -p use_sim_time:=true \
         -p grasp_z_offset:=0.10
 
-验证（完成标准）：① dry-run 轨迹终点在木棒轴心 ±1cm、夹爪竖直朝下；
-② 实跑无碰撞，悬停→下降平滑；③ 夹爪闭合停在圆柱侧壁。
+验证（完成标准）：① dry-run 指尖贴抓取点，side 手指水平指向棍 /
+top_down 夹爪竖直朝下；② 实跑无碰撞，接近段平滑；③ 夹爪闭合停在圆柱侧壁。
 
 标定提示：grasp_z_offset 用 tf2_echo base_link object_frame 读物体
 中心高度后调；tcp_offset 是 flange 原点到指尖的距离（RViz 里标一次）；
-calib_x/calib_y 修视觉系统偏差（tf2_echo 读数对比 Gazebo 真值，实测
-y 偏高 ~2cm，跑时传 -p calib_y:=-0.02）。
+视觉偏差校准 calib_x/calib_y 已挪到 image_sub3（跑视觉节点时传
+-p calib_y:=-0.02），本节点拿到的 /vision/detected_point 已是校准后
+的 base_link 位置。
 已知坑（旧 C++ move_to_point 踩过）：严格竖直姿态下 KDL 可能自碰撞导致
 "no valid states for goal tree"——本节点默认从 ready（已竖直朝下）出发
 规避；仍失败时试调 grasp_yaw 或加大 planning_time。
@@ -52,9 +54,9 @@ import rclpy
 from geometry_msgs.msg import PointStamped
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
-from scipy.spatial.transform import Rotation
 
-from mycobot_learn.arm_mover import ArmMover, DOWNWARD_QUAT, TOUCH_LINKS
+from mycobot_learn.arm_mover import TOUCH_LINKS, ArmMover
+from mycobot_learn.grasp_geometry import side_grasp_pair, top_down_pair
 
 
 def main(args=None):
@@ -63,57 +65,52 @@ def main(args=None):
 
     # ---------------- 参数 ----------------
     p = lambda name, default: node.declare_parameter(name, default).value
-    target_source = str(p("target_source", "tf"))            # tf / topic
-    object_frame = str(p("object_frame", "object_frame"))    # 与 image_sub3 一致
-    tf_timeout = float(p("tf_timeout", 10.0))
-    grasp_mode = str(p("grasp_mode", "side"))                # side=V2 水平侧抓 / top_down=V1 顶抓
-    approach_backoff = float(p("approach_backoff", 0.06))    # 侧抓 pre-grasp 后退量（=直线接近段长度）
+    point_timeout = float(p("point_timeout", 10.0))  # 等 /vision/detected_point
+    grasp_mode = str(p("grasp_mode", "side"))  # side=V2 水平侧抓 / top_down=V1 顶抓
+    approach_backoff = float(
+        p("approach_backoff", 0.06)
+    )  # 侧抓 pre-grasp 后退量（=直线接近段长度）
     # 接近方向（世界系方位角）：默认 135°=base_link +y 与 -x 平分角——
     # 夹爪沿该方向直线伸向木棍，腕在木棍右前方，手指沿接近方向垂线跨
     # 棍两侧。候选 yaw_offsets_deg 在此基础上微调。
     approach_yaw_deg = float(p("approach_yaw_deg", 135.0))
     # 相对 approach_yaw_deg 的微调候选（规划失败依次尝试）
     yaw_offsets_deg = str(p("yaw_offsets_deg", "0.0 -15.0 15.0 -30.0 30.0"))
-    lift_height = float(p("lift_height", 0.10))              # lift_after_grasp 竖直上提量
-    hover_height = float(p("hover_height", 0.06))            # 悬停点高于抓取点
-    grasp_z_offset = float(p("grasp_z_offset", 0.0))         # 抓取点相对物体 z 偏移
-    tcp_offset = float(p("tcp_offset", 0.10))                # flange 原点→指尖
-    grasp_yaw = float(p("grasp_yaw", 0.0))                   # 绕竖直轴微调（圆柱对称一般不动）
-    max_reach = float(p("max_reach", 0.30))                  # 工作空间护栏（留视觉 y 偏差余量）
+    lift_height = float(p("lift_height", 0.10))  # lift_after_grasp 竖直上提量
+    hover_height = float(p("hover_height", 0.06))  # 悬停点高于抓取点
+    grasp_z_offset = float(p("grasp_z_offset", 0.0))  # 抓取点相对物体 z 偏移
+    tcp_offset = float(p("tcp_offset", 0.10))  # flange 原点→指尖
+    grasp_yaw = float(p("grasp_yaw", 0.0))  # 绕竖直轴微调（圆柱对称一般不动）
+    max_reach = float(p("max_reach", 0.30))  # 工作空间护栏（留视觉 y 偏差余量）
     z_min = float(p("z_min", 0.03))
     z_max = float(p("z_max", 0.45))
-    calib_x = float(p("calib_x", 0.0))                       # 视觉偏差校准（TF 读数 + 此项）
-    calib_y = float(p("calib_y", 0.0))                       # 实测 y 系统性偏高 ~+0.02，传 -0.02
-    object_height = float(p("object_height", 0.35))          # 场景圆柱尺寸（对齐 red_cylinder 模型）
+    object_height = float(
+        p("object_height", 0.35)
+    )  # 场景圆柱尺寸（对齐 red_cylinder 模型）
     object_radius = float(p("object_radius", 0.015))
-    scene_margin = float(p("scene_margin", 0.005))           # 场景圆柱半径外扩：吸收视觉误差+轨迹跟踪偏差
+    scene_margin = float(
+        p("scene_margin", 0.005)
+    )  # 场景圆柱半径外扩：吸收视觉误差+轨迹跟踪偏差
     dry_run = bool(p("dry_run", False))
     do_grasp = bool(p("do_grasp", True))
-    lift_after_grasp = bool(p("lift_after_grasp", False))    # 附着提起（MoveIt 层）
+    lift_after_grasp = bool(p("lift_after_grasp", False))  # 附着提起（MoveIt 层）
     attach_size = [float(v) for v in p("attach_size", [0.03, 0.03, 0.35])]
-
-    # 目标姿态 = 绕 z 转 grasp_yaw × 竖直朝下
-    q = (Rotation.from_euler("z", grasp_yaw) * Rotation.from_quat(DOWNWARD_QUAT)).as_quat()
 
     try:
         with ArmMover() as mover:
-            # ---------------- 1. 取目标 ----------------
-            if target_source == "topic":
-                point = _wait_detected_point(node, tf_timeout)
-                if point is None:
-                    node.get_logger().error("等 /vision/detected_point 超时，退出")
-                    return
-                ox, oy, oz = point.x, point.y, point.z
-            else:
-                if not mover.wait_for_frame(object_frame, tf_timeout):
-                    node.get_logger().error(
-                        f"等 TF {object_frame} 超时——视觉节点(image_sub3)在跑吗？"
-                    )
-                    return
-                obj = mover.lookup_frame_pose(object_frame)
-                pos = obj.pose.position
-                # 视觉校准：solvePnP 的 y 系统性偏高（spawn y=0 时 TF 读 +0.015~+0.023）
-                ox, oy, oz = pos.x + calib_x, pos.y + calib_y, pos.z
+            # ---------------- 1. 取目标：/vision/detected_point（base_link 系，视觉侧已校准） ----------------
+            det = _wait_detected_point(node, point_timeout)
+            if det is None:
+                node.get_logger().error(
+                    "等 /vision/detected_point 超时——视觉节点(image_sub3)在跑吗？"
+                )
+                return
+            frame = det.header.frame_id or "base_link"
+            if frame != "base_link":
+                node.get_logger().warn(
+                    f"检测点 frame 是 {frame}（应 base_link），目标可能偏移"
+                )
+            ox, oy, oz = det.point.x, det.point.y, det.point.z
             node.get_logger().info(f"目标物体位置: ({ox:.3f}, {oy:.3f}, {oz:.3f}) m")
 
             # ---------------- 2. 工作空间护栏 ----------------
@@ -134,11 +131,17 @@ def main(args=None):
             # 可跨。先移除再添加，避免上次运行残留的旧位置挡路。
             scene_obj = "grasp_target"
             mover.remove_object(scene_obj)
-            mover.add_cylinder(scene_obj, ox, oy, object_height / 2.0,
-                               object_height, object_radius + scene_margin)
+            mover.add_cylinder(
+                scene_obj,
+                ox,
+                oy,
+                object_height / 2.0,
+                object_height,
+                object_radius + scene_margin,
+            )
             mover.allow_collision(scene_obj, TOUCH_LINKS)
 
-            # ---------------- 3. 抓取位姿候选 ----------------
+            # ---------------- 3. 抓取位姿候选（构造收口在 grasp_geometry） ----------------
             if grasp_mode == "side":
                 # V2.4 水平侧抓：接近方向从 approach_yaw_deg 起采样
                 # （默认 135°），沿"腕→物体"水平直线接近
@@ -147,23 +150,19 @@ def main(args=None):
                 pregrasp_goals, grasp_goals, yaws = [], [], []
                 for dyaw in offsets:
                     yaw = base_yaw + dyaw
-                    # 侧抓姿态（推导见文件头）：手 z 水平指向物体、手 x 水平⊥approach
-                    q_side = (Rotation.from_euler("z", yaw + math.pi / 2)
-                              * Rotation.from_quat(DOWNWARD_QUAT)).as_quat()
-                    approach = (math.cos(yaw), math.sin(yaw), 0.0)
-                    # TCP 对准物体中心：flange = 抓取点 - tcp_offset·approach
-                    gx = ox - tcp_offset * approach[0]
-                    gy = oy - tcp_offset * approach[1]
-                    grasp_goals.append(mover.goal_pose(gx, gy, grasp_z, tuple(q_side)))
-                    pregrasp_goals.append(mover.goal_pose(
-                        gx - approach_backoff * approach[0],
-                        gy - approach_backoff * approach[1], grasp_z, tuple(q_side)))
+                    (pre_xyz, pre_q), (gr_xyz, gr_q) = side_grasp_pair(
+                        ox, oy, grasp_z, yaw, tcp_offset, approach_backoff
+                    )
+                    grasp_goals.append(mover.goal_pose(*gr_xyz, gr_q))
+                    pregrasp_goals.append(mover.goal_pose(*pre_xyz, pre_q))
                     yaws.append(yaw)
                 descend_goal = hover_goal = None
             else:
-                tool_z = grasp_z + tcp_offset  # 目标是"指尖到抓取点"，flange 再抬高 tcp_offset
-                descend_goal = mover.goal_pose(ox, oy, tool_z, tuple(q))
-                hover_goal = mover.goal_pose(ox, oy, tool_z + hover_height, tuple(q))
+                (hov_xyz, hov_q), (des_xyz, des_q) = top_down_pair(
+                    ox, oy, grasp_z, tcp_offset, hover_height, math.radians(grasp_yaw)
+                )
+                descend_goal = mover.goal_pose(*des_xyz, des_q)
+                hover_goal = mover.goal_pose(*hov_xyz, hov_q)
 
             if dry_run:
                 # side 与实跑同源：从当前状态直接探测（不再经 ready 中转）
@@ -184,7 +183,9 @@ def main(args=None):
                 # （ready→侧抓的大翻身是 OMPL 甩上去绕行的路径，会扫过棍顶）
                 node.get_logger().info("1/3 张开夹爪（原位）")
                 mover.open_gripper()
-                node.get_logger().info("2/3 从当前位置直接规划 → pre-grasp（正对方向为主）")
+                node.get_logger().info(
+                    "2/3 从当前位置直接规划 → pre-grasp（正对方向为主）"
+                )
                 traj, _, idx = mover.plan_first_feasible(pregrasp_goals)
                 if traj is None:
                     node.get_logger().error(
@@ -193,7 +194,8 @@ def main(args=None):
                     )
                     return
                 node.get_logger().info(
-                    f"选用接近方向 yaw={math.degrees(yaws[idx]):.1f}°（第 {idx + 1} 候选）")
+                    f"选用接近方向 yaw={math.degrees(yaws[idx]):.1f}°（第 {idx + 1} 候选）"
+                )
                 if not mover.execute(traj):
                     return
                 node.get_logger().info("3/3 直线接近到抓取位（夹棍侧壁）")
@@ -209,16 +211,9 @@ def main(args=None):
                 node.get_logger().info("2/5 张开夹爪")
                 mover.open_gripper()
                 node.get_logger().info("3/5 悬停 → 下降到抓取点")
-                node.get_logger().info("3/5 悬停 → 下降到抓取点")
-                if target_source == "tf":
-                    # hover_and_descend 内部会重新查 TF，xy 校准要随偏移一起传入
-                    ok = mover.hover_and_descend(
-                        object_frame, hover_height,
-                        (calib_x, calib_y, grasp_z_offset + tcp_offset), tuple(q)
-                    )
-                else:
-                    ok = mover.move_to_pose(hover_goal) and mover.move_to_pose(descend_goal)
-                if not ok:
+                if not (
+                    mover.move_to_pose(hover_goal) and mover.move_to_pose(descend_goal)
+                ):
                     return
                 grasp_goal_final = descend_goal
 
@@ -239,12 +234,16 @@ def main(args=None):
                 obj_pose = mover.goal_pose(ox, oy, grasp_z)  # 物体中心（附着体位置）
                 mover.attach_box_to_ee("grasped_object", attach_size, obj_pose)
                 # 侧抓已退到 pre-grasp，以它为基准竖直上提；顶抓从抓取位提
-                base_pose = pregrasp_goals[idx] if grasp_mode == "side" else grasp_goal_final
+                base_pose = (
+                    pregrasp_goals[idx] if grasp_mode == "side" else grasp_goal_final
+                )
                 bp = base_pose.pose.position
                 bo = base_pose.pose.orientation
-                mover.move_cartesian(mover.goal_pose(
-                    bp.x, bp.y, bp.z + lift_height,
-                    (bo.x, bo.y, bo.z, bo.w)))
+                mover.move_cartesian(
+                    mover.goal_pose(
+                        bp.x, bp.y, bp.z + lift_height, (bo.x, bo.y, bo.z, bo.w)
+                    )
+                )
                 mover.detach_object("grasped_object")
 
             node.get_logger().info("回 home")
@@ -265,17 +264,19 @@ def main(args=None):
 
 
 def _wait_detected_point(node, timeout_sec):
-    """等 /vision/detected_point 一条消息，返回 point 部分，超时返回 None。"""
+    """等 /vision/detected_point 一条消息，返回整条 PointStamped，超时返回 None。"""
     got = {}
 
     def cb(msg: PointStamped):
         got["msg"] = msg
 
-    node.create_subscription(PointStamped, "/vision/detected_point", cb, QoSProfile(depth=1))
+    node.create_subscription(
+        PointStamped, "/vision/detected_point", cb, QoSProfile(depth=1)
+    )
     deadline = time.monotonic() + timeout_sec
     while time.monotonic() < deadline and "msg" not in got:
         rclpy.spin_once(node, timeout_sec=0.1)
-    return got["msg"].point if "msg" in got else None
+    return got["msg"] if "msg" in got else None
 
 
 if __name__ == "__main__":

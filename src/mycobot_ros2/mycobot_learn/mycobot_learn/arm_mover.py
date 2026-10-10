@@ -49,10 +49,11 @@ from rclpy.time import Time
 from shape_msgs.msg import SolidPrimitive
 from tf2_ros import TransformException
 
-# 夹爪竖直朝下的目标姿态（pose_link=link6_flange、表达在 base 系，绕 x 轴 +90°，
-# 由 ready 位姿 FK 实算）。注意与旧 C++ 的 (1,0,0,0) 不同：那边 pose_link 不是
-# link6_flange。以 dry-run 在 RViz 里实看为准，不对就换这两个值组合。
-DOWNWARD_QUAT = (0.70711, 0.0, 0.0, 0.70711)
+from mycobot_learn.grasp_geometry import DOWNWARD_QUAT  # noqa: F401
+
+# DOWNWARD_QUAT（夹爪竖直朝下的法兰姿态）等抓取几何常量统一收口在
+# grasp_geometry 维护；此处转发 import，goal_pose 默认值与既有用法
+# （arm_hello_moveit 的 from arm_mover import DOWNWARD_QUAT）继续可用。
 
 # 夹爪命名状态 → gripper_controller 关节位置（来自 SRDF group_state）
 GRIPPER_POSITIONS = {"open": 0.0, "half_closed": -0.34, "closed": -0.50}

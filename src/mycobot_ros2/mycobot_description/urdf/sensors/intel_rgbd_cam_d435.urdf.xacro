@@ -39,7 +39,7 @@
 
     <!-- 相机俯角（度）：0=水平向前，90=垂直向下。
          想调整相机看得远/近，只改这一个值即可，下方自动换算成弧度 -->
-    <xacro:property name="camera_tilt_angle_deg" value="25"/>
+    <xacro:property name="camera_tilt_angle_deg" value="33"/>
 
     <!-- ============ torso_link：相机安装立柱 ============
          一根 0.5m 高的细立柱（半径 5mm）+ 底部固定盒（150×100×60mm），

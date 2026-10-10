@@ -10,7 +10,7 @@ mycobot 280 机械臂 ROS 2 仿真学习项目，按阶段递进：
 | 一 | `robotg` | 仅启动 Gazebo 仿真 |
 | 二 | `robotm` | 一键启动 Gazebo + MoveIt + RViz |
 | 三 | `robotg` + `image_sub` | 视觉入门：订阅相机图像、实时显示与按键存图 |
-| 四 | `robotm` + `image_sub3` + `arm_move_to_object` | 视觉引导抓取：检测→TF→MoveIt 规划执行→夹取 |
+| 四 | `robotm` + `image_sub3` + `arm_move_to_object` | 视觉引导抓取：检测→base_link 坐标→侧抓→夹取 |
 
 > `build`、`robotg`、`robotm` 为 `~/.bashrc` 中定义的别名，配置见下文环境准备。
 
@@ -115,67 +115,74 @@ ros2 run mycobot_learn image_sub --ros-args -p image_topic:=/camera_head/depth/i
 
 ## 阶段四：视觉引导抓取（ArmMover 公共封装）
 
-视觉链路（HSV 检测 → solvePnP → TF 广播，见 `image_sub1` → `image_sub3`）打通后，
-用公共封装 `ArmMover` 把 MoveIt（moveit_py）+ TF + 夹爪串成"检测 → 运动 → 夹取"：
+视觉链路（HSV 检测 → solvePnP → base_link 换算，见 `image_sub1` → `image_sub3`）打通后，
+分三层把"检测 → 运动 → 夹取"串起来：
 
 ```
-[任意视觉节点]                 [库层 arm_mover.py]                [Gazebo]
- image_sub3 / 未来的     ──►   ArmMover                          arm_controller
- YOLO、SAM ...                 ├─ TF 查询 object_frame→base_link  gripper_action_controller
-   唯一契约：广播              ├─ moveit_py 规划+执行
-   object_frame TF             └─ 夹爪/附着搬运封装
-                                       ▲ import
-                               [节点层 arm_move_to_object.py]
+[image_sub3 视觉节点]──/vision/detected_point──►[arm_move_to_object 执行节点]
+  HSV 分割→solvePnP→换算 base_link                等检测点→建场景→张爪→
+  + calib_x/calib_y 校准                          pre-grasp→直线接近→闭爪→退回
+  （换 YOLO/SAM：同名同格式                         │ 目标位姿一行调库构造
+   发这个话题即可对接）                             ▼
+                                        [grasp_geometry 纯函数库：侧抓/顶抓位姿]
+                                               [arm_mover 库层封装：moveit_py
+                                                规划执行/夹爪/附着]→Gazebo 控制器
 ```
 
-**对接契约（换视觉实现只动视觉侧）**：往 TF 广播 `object_frame`（范本
-`image_sub3.publish_tf`），或发 `PointStamped` 到 `/vision/detected_point`
-（`target_source:=topic`）。
+**对接契约（换视觉实现只动视觉侧）**：往 `/vision/detected_point` 发
+`PointStamped`（base_link 系，坐标换算与校准在视觉侧完成）。TF 广播的
+`object_frame` 仅作 RViz / tf2_echo 调试用，运动侧不读它。
 
 文件（`mycobot_learn/mycobot_learn/`）：
 
-- `arm_mover.py`：公共封装库——TF 查询、规划执行（`move_to_pose` / `move_to_named` /
-  `move_to_frame` / `hover_and_descend`）、夹爪开合、附着搬运，任何脚本 import 即用
+- `arm_mover.py`：公共封装库——规划执行（`move_to_pose` / `move_to_named` /
+  `move_cartesian` / `plan_first_feasible`）、夹爪开合、规划场景/附着搬运，
+  任何脚本 import 即用
+- `grasp_geometry.py`：抓取几何纯函数库——侧抓/顶抓法兰目标位姿构造
+  （`side_grasp_pair` / `top_down_pair`），含夹爪安装旋转修正（URDF rpy 1.579）
 - `arm_hello_moveit.py`：演示①，第一个 MoveIt 程序（ready → 固定点位 → home）
-- `arm_move_to_object.py`：演示②，完整抓取流程（工作空间护栏、悬停、竖直下降、夹取、
-  可选附着提起）
+- `arm_move_to_object.py`：演示②，纯执行节点——等检测点→调库建目标→护栏→
+  pre-grasp→直线接近→闭爪→退回（不做坐标/几何计算）
 
 运行（三个终端）：
 
 ```bash
-robotm                                              # 终端1：Gazebo + MoveIt + RViz
-ros2 run mycobot_learn image_sub3                   # 终端2：视觉检测并广播 object_frame
-ros2 run tf2_ros tf2_echo base_link object_frame    # 读物体坐标，标定 grasp_z_offset
+robotm                    # 终端1：Gazebo + MoveIt + RViz
+# 终端2：视觉节点（检测 + 换算 base_link + 校准，发 /vision/detected_point）
+ros2 run mycobot_learn image_sub3 --ros-args -p use_sim_time:=true -p calib_y:=-0.02
+# 校准思路：tf2_echo base_link object_frame 读原始检测值，与 detected_point
+# 对比差多少补多少 calib_x/calib_y（solvePnP 的 y 实测偏高 ~2cm）
+ros2 topic echo /vision/detected_point
 
 # 终端3：按序验证
 ros2 run mycobot_learn arm_hello_moveit --ros-args -p use_sim_time:=true
 ros2 run mycobot_learn arm_move_to_object --ros-args -p use_sim_time:=true -p dry_run:=true
-ros2 run mycobot_learn arm_move_to_object --ros-args -p use_sim_time:=true -p grasp_z_offset:=0.10
-
-
-ros2 run mycobot_learn arm_move_to_object --ros-args \
-  -p use_sim_time:=true -p approach_yaw_deg:=30.0 -p calib_y:=-0.076
-
+ros2 run mycobot_learn arm_move_to_object --ros-args -p use_sim_time:=true
 ```
 
-先跑 `arm_hello_moveit` 验证 moveit_py 链路，再 `dry_run` 在 RViz 检查轨迹终点
-是否在木棒正上方、夹爪是否竖直朝下，最后实跑。
+先跑 `arm_hello_moveit` 验证 moveit_py 链路，再 `dry_run` 在 RViz 检查轨迹终点：
+side 模式手指应水平指向木棍、指尖贴抓取点。常用调整：`approach_yaw_deg` 换接近
+方向，`grasp_z_offset` 调抓取高度。
 
-常用参数（完整见 `arm_move_to_object.py` 头部注释）：
+常用参数（完整见各文件头部注释；`calib_x`/`calib_y` 传给 image_sub3，其余传给 arm_move_to_object）：
 
 | 参数 | 默认 | 说明 |
 | --- | --- | --- |
-| `grasp_z_offset` | 0.0 | 抓取点相对物体中心的 z 偏移（tf2_echo 实测标定） |
-| `hover_height` | 0.06 | 悬停点高于抓取点的高度 |
-| `tcp_offset` | 0.10 | flange 原点到指尖距离 |
+| `calib_x` / `calib_y` | 0 | 视觉偏差校准（image_sub3；y 实测偏高 ~2cm） |
+| `grasp_mode` | side | side 水平侧抓（默认）/ top_down 竖直顶抓（矮物体备选） |
+| `approach_yaw_deg` | 135.0 | 接近方向方位角；不可达时 `yaw_offsets_deg` 候选依次尝试 |
+| `grasp_z_offset` | 0.0 | 抓取点相对物体中心的 z 偏移 |
+| `tcp_offset` | 0.10 | 法兰原点到指尖距离 |
+| `hover_height` | 0.06 | 悬停高度（仅 top_down） |
 | `dry_run` | false | 只规划不执行，RViz 查轨迹 |
 | `do_grasp` | true | 是否闭合夹爪 |
-| `lift_after_grasp` | false | 抓后附着物体并提起（MoveIt 层搬运） |
-| `target_source` | tf | tf / topic（后者订阅 `/vision/detected_point`） |
+| `lift_after_grasp` | false | 抓后附着物体并退回提起（MoveIt 层搬运） |
 
-抓取策略：0.03m 直径圆柱顶面太细，夹爪对准轴心竖直下降，手指跨两侧**夹上部侧壁**。
-已知坑：严格竖直姿态可能触发 KDL "no valid states for goal tree"——本流程从 ready
-（已竖直朝下）出发规避；仍失败时调 `grasp_yaw` 或加大 `planning_time`。
+抓取策略（side，默认）：0.35m 木棍竖放，顶抓时棍顶必穿手腕（物理无解），
+唯一可行是水平侧抓——夹爪横着接近、手指夹棍侧壁。几何修正（夹爪相对法兰
+转 1.579 rad 的安装旋转、法兰→指尖偏移、高度补偿）统一在 `grasp_geometry.py`。
+top_down 保留作矮物体备选；其严格竖直姿态可能触发 KDL
+"no valid states for goal tree"，从 ready 出发规避。
 
 ## 仿真相机（D435）
 
