@@ -5,7 +5,8 @@ import cv2
 import numpy as np
 import rclpy
 from cv_bridge import CvBridge
-from geometry_msgs.msg import PointStamped, TransformStamped
+from geometry_msgs.msg import PointStamped, PoseStamped, TransformStamped
+from rclpy.clock import Clock
 from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
@@ -13,6 +14,9 @@ from rclpy.time import Time
 from scipy.spatial.transform import Rotation
 from sensor_msgs.msg import CameraInfo, Image
 from tf2_ros import Buffer, TransformBroadcaster, TransformException, TransformListener
+
+from mycobot_learn import conver
+from mycobot_learn.arm_move import ArmMove
 
 IMAGE_DIR = os.path.expanduser("~/dev/ros2_ws/img")
 
@@ -22,35 +26,6 @@ HSV_INIT = {"H_low": 0, "H_up": 10, "S_low": 80, "S_up": 255, "V_low": 60, "V_up
 
 
 class ImageSub3(Node):
-    """步骤 4 练习：把 solvePnP 位姿广播进 TF（object_frame）。
-
-    在 image_sub2（检测 + solvePnP）基础上加 TransformBroadcaster：
-    每帧广播 camera_head_depth_optical_frame → object_frame，
-    translation = tvec，rotation = 旋转矩阵转四元数（scipy）。
-
-    ⚠️ optical frame 惯例是 z 朝前、y 朝下；object_frame 挂在 optical
-    下面时，其 x/y/z 轴即模型点定义的 右/上/朝相机。要看 base_link 下
-    的位姿，用 TF 树串联（RViz 直接显示即自动完成）。
-
-    输出两路：① TF 广播 object_frame（原始检测值，RViz / tf2_echo 调试用）；
-    ② /vision/detected_point（PointStamped，base_link 系 + calib_x/calib_y
-    校准）——运动侧（arm_move_to_object）只订阅 ②，坐标换算和偏差校准
-    都在视觉侧完成，运动节点不再查 TF / 算校准。
-
-    物体尺寸来自 models/red_cylinder/model.sdf（radius 0.015 → 直径
-    0.03m，length 0.35m）。若换测 mustard 瓶：H 改 20~35，尺寸 0.065x0.160
-    （mesh 内部 0.2 缩放 × SDF scale 0.05 实测），用参数传入即可。
-
-    验证（完成标准）：RViz Fixed Frame 选 world，开 TF 显示，看
-    object_frame 坐标轴贴在木棍上；Gazebo 里拖动木棍后跟随。
-    （RViz 要 use_sim_time:=true，否则 TF 时间戳对不上会不显示。）
-
-    交互：
-        HSV Controls 窗口：6 根滑动条实时调 H/S/V 上下限
-        Mask 窗口：       二值化结果（白=命中阈值），调参主要看它
-        Image 窗口：      检测框 + 3D 轴；s 保存，q 退出
-    """
-
     def __init__(self, name):
         super().__init__(name)
         self.get_logger().info("Image subscriber node started")
@@ -183,14 +158,7 @@ class ImageSub3(Node):
         ts.transform.rotation.w = float(q[3])
         self.tf_broadcaster.sendTransform(ts)
 
-    def publish_base_point(self, stamp, tvec):
-        """solvePnP 平移换算到 base_frame，发 /vision/detected_point。
-
-        用最新可用的 optical→base_frame 变换（Time() 取 latest——单线程
-        spin 里带时间戳查询会阻塞等新 TF，死等不到）；查不到时跳过本帧。
-        calib_x/calib_y 在这里修视觉系统偏差。注意 TF 广播的 object_frame
-        仍是原始检测值，与这里的校准点对比即可量出视觉偏差。
-        """
+    def publish_base_point(self, stamp, rvec, tvec):
         try:
             tf = self.tf_buffer.lookup_transform(
                 self.base_frame,
@@ -205,21 +173,58 @@ class ImageSub3(Node):
             )
             return
         tr, rot = tf.transform.translation, tf.transform.rotation
-        p = Rotation.from_quat(
-            [rot.x, rot.y, rot.z, rot.w]
-        ).as_matrix() @ tvec.flatten() + np.array([tr.x, tr.y, tr.z])
-        out = PointStamped()
-        out.header.stamp = stamp
-        out.header.frame_id = self.base_frame
-        out.point.x = float(p[0]) + self.calib_x
-        out.point.y = float(p[1]) + self.calib_y
-        out.point.z = float(p[2])
-        self.point_pub.publish(out)
-        self.get_logger().info(
-            f"{self.base_frame}: ({out.point.x:.3f}, {out.point.y:.3f}, "
-            f"{out.point.z:.3f}) m",
-            throttle_duration_sec=1.0,
+        # p = Rotation.from_quat(
+        #     [rot.x, rot.y, rot.z, rot.w]
+        # ).as_matrix() @ tvec.flatten() + np.array([tr.x, tr.y, tr.z])
+
+        # 相机到基座的变换矩阵
+        T_base_cam = conver.matrix(
+            Rotation.from_quat([rot.x, rot.y, rot.z, rot.w]).as_rotvec(),
+            tvec=[tr.x, tr.y, tr.z],
         )
+
+        # 相机到物体的变换矩阵
+        T_cam_obj = conver.matrix(rvec, tvec)
+
+        # 基座到物体的变换矩阵
+        T_base_obj = conver.obj2base(T_base_cam, T_cam_obj)
+
+        xyz, _ = conver.extract(T_base_obj)
+        # out = PointStamped()
+        # out.header.stamp = stamp
+        # out.header.frame_id = self.base_frame
+        # out.point.x = float(p[0]) + self.calib_x
+        # out.point.y = float(p[1]) + self.calib_y
+        # out.point.z = float(p[2])
+        # self.point_pub.publish(out)
+
+        # 定义机械臂爪取
+        robot = ArmMove()
+        robot.log_plan_config()
+
+        # 回到初始位置
+        robot.move_gripper("open")
+        robot.move_to_state("home")
+
+        target = PoseStamped()
+        target.header.frame_id = "base_link"
+        target.header.stamp = Clock().now().to_msg()
+        target.pose.position.x = xyz[0]
+        target.pose.position.y = xyz[1]
+        target.pose.position.z = xyz[2]
+        # 姿态写死：欧拉角 (0, -90°, 0) 的四元数 xyzw
+        target.pose.orientation.x = 0.0
+        target.pose.orientation.y = -0.70711
+        target.pose.orientation.z = 0.0
+        target.pose.orientation.w = 0.70711
+        robot.move_to_pose(target)
+
+        # self.get_logger().info(
+        #     f"位置：{out.point.x:.2f}, {out.point.y:.2f}, {out.point.z:.2f} m",
+        # self.get_logger().info(
+        #     f"位置：{out}) m",
+        #     throttle_duration_sec=1.0,
+        # )
 
     def image_callback(self, msg):
         # 转换成 OpenCV 图像
@@ -283,7 +288,7 @@ class ImageSub3(Node):
                 # ---- 4. 位姿进 TF：parent_frame → object_frame ----
                 self.publish_tf(msg.header.stamp, rvec, tvec)
                 # ---- 5. base_link 系位置发运动侧 ----
-                self.publish_base_point(msg.header.stamp, tvec)
+                self.publish_base_point(msg.header.stamp, rvec, tvec)
         elif contours and self.K is None:
             self.get_logger().warn(
                 "waiting for camera_info...", throttle_duration_sec=2.0
