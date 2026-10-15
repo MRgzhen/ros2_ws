@@ -12,6 +12,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSHistoryPolicy, QoSProfile, QoSReliabilityPolicy
 from rclpy.time import Time
 from scipy.spatial.transform import Rotation
+from scipy.spatial.transform import Rotation as R
 from sensor_msgs.msg import CameraInfo, Image
 from tf2_ros import Buffer, TransformBroadcaster, TransformException, TransformListener
 
@@ -64,8 +65,30 @@ class ImageSub3(Node):
         self.calib_x = float(self.get_parameter("calib_x").value)
         self.declare_parameter("calib_y", 0.0)
         self.calib_y = float(self.get_parameter("calib_y").value)
+        # dry_run=true 只广播法兰目标 TF（RViz 看 grasp_target_frame）不动臂；
+        # 确认目标位置/朝向后 -p dry_run:=false 实抓
+        self.declare_parameter("dry_run", True)
+        self.dry_run = bool(self.get_parameter("dry_run").value)
         obj_w = float(self.get_parameter("object_width").value)
         obj_h = float(self.get_parameter("object_height").value)
+        # ---- MTC 式抓取采样参数 ----
+        # TCP 相对法兰的变换 [x,y,z,roll,pitch,yaw]；roll=π/2 使夹爪 z 轴（接近
+        # 方向）垂直于圆柱轴 → 侧抓；0.096 = 法兰到 TCP 的接近向偏移
+        self.declare_parameter(
+            "grasp_frame_transform", [0.0, 0.0, 0.096, 1.5708, 0.0, 0.0]
+        )
+        # 绕圆柱轴的采样步长（弧度），0.1309 ≈ 7.5°，一圈约 48 个候选
+        self.declare_parameter("grasp_angle_delta", 0.1309)
+        # 从候选中选接近方向最接近该 yaw 的一个；40° ≈ 原写死偏移
+        # (-0.0546,-0.0465) 反推的实测方向，RViz 确认后可改
+        self.declare_parameter("grasp_target_yaw_deg", 40.0)
+        self.gft = np.array(
+            self.get_parameter("grasp_frame_transform").value, dtype=np.float64
+        )
+        self.grasp_angle_delta = float(self.get_parameter("grasp_angle_delta").value)
+        self.grasp_target_yaw = float(
+            np.deg2rad(float(self.get_parameter("grasp_target_yaw_deg").value))
+        )
         # 模型点：物体中心为原点、正面朝相机（x 右、y 上），顺序与图像角点
         # 左上/右上/右下/左下 一一对应
         self.obj_points = np.array(
@@ -112,6 +135,11 @@ class ImageSub3(Node):
             upper = 179 if bar.startswith("H") else 255
             cv2.createTrackbar(bar, "HSV Controls", value, upper, lambda x: None)
 
+        # ArmMove 必须在 spin 前构造：放进订阅回调里构造/执行，action
+        # client 连不上 server（执行 ABORTED "not connected"），且每帧
+        # 重复构造开销巨大；启动期构造一次全程序复用
+        self.robot = ArmMove()
+
     def camera_info_callback(self, msg):
         """拿一次内参就够（仿真里内参不变），之后取消订阅。"""
         self.K = np.array(msg.k, dtype=np.float64).reshape(3, 3)
@@ -141,6 +169,50 @@ class ImageSub3(Node):
         start = int(np.argmin(pts.sum(axis=1)))
         return np.roll(pts, -start, axis=0)
 
+    @staticmethod
+    def grasp_frame_matrix(gft):
+        """[x,y,z,roll,pitch,yaw] → 4x4 齐次矩阵（对应 MTC 的 vectorToEigen）。"""
+        T = np.eye(4)
+        T[:3, :3] = R.from_euler("XYZ", gft[3:6]).as_matrix()
+        T[:3, 3] = gft[:3]
+        return T
+
+    def sample_grasp_poses(self, T_base_obj):
+        """绕圆柱轴采样一圈法兰候选位姿。
+
+        对应 MTC 的 GenerateGraspPose + ComputeIK(setIKFrame(...))：
+        TCP 目标 = 物体采样系（z 对齐圆柱轴）绕自身 z 转 angle，
+        法兰位姿 = TCP 目标 × grasp_frame_transform 的逆。
+        PnP 模型把圆柱高建在 y 轴上，故圆柱轴 = 物体系 y 轴转到 base 后的方向。
+        返回 [(接近方向yaw, 法兰齐次矩阵), ...]。
+        """
+        axis = T_base_obj[:3, :3] @ np.array([0.0, 1.0, 0.0])
+        align, _ = R.align_vectors([axis], [[0.0, 0.0, 1.0]])
+        T_object = np.eye(4)
+        T_object[:3, :3] = align.as_matrix()
+        T_object[:3, 3] = T_base_obj[:3, 3]
+
+        T_flange_in_tcp = np.linalg.inv(self.grasp_frame_matrix(self.gft))
+
+        candidates = []
+        for angle in np.arange(0.0, 2.0 * np.pi, self.grasp_angle_delta):
+            Rz = np.eye(4)
+            Rz[:3, :3] = R.from_euler("z", angle).as_matrix()
+            T_flange = T_object @ Rz @ T_flange_in_tcp
+            pos = T_flange[:3, 3]
+            # 接近方向 yaw：法兰位置 → 物体中心（水平投影）
+            yaw = float(np.arctan2(T_object[1, 3] - pos[1], T_object[0, 3] - pos[0]))
+            candidates.append((yaw, T_flange))
+        return candidates
+
+    def select_grasp(self, candidates):
+        """无 IK 可用，改用固定工程方向筛：选接近方向 yaw 最接近目标值的候选。"""
+
+        def yaw_diff(yaw):
+            return abs((yaw - self.grasp_target_yaw + np.pi) % (2.0 * np.pi) - np.pi)
+
+        return min(candidates, key=lambda c: yaw_diff(c[0]))
+
     def publish_tf(self, stamp, rvec, tvec):
         """把 solvePnP 结果广播为 parent_frame → object_frame。"""
         ts = TransformStamped()
@@ -158,7 +230,7 @@ class ImageSub3(Node):
         ts.transform.rotation.w = float(q[3])
         self.tf_broadcaster.sendTransform(ts)
 
-    def publish_base_point(self, stamp, rvec, tvec):
+    def publish_base_point(self, stamp, rvec, tvec, frame):
         try:
             tf = self.tf_buffer.lookup_transform(
                 self.base_frame,
@@ -189,7 +261,8 @@ class ImageSub3(Node):
         # 基座到物体的变换矩阵
         T_base_obj = conver.obj2base(T_base_cam, T_cam_obj)
 
-        xyz, _ = conver.extract(T_base_obj)
+        xyz, xyzw = conver.extract(T_base_obj)
+        self.sample_grasp_poses(T_base_obj)
         # out = PointStamped()
         # out.header.stamp = stamp
         # out.header.frame_id = self.base_frame
@@ -198,27 +271,73 @@ class ImageSub3(Node):
         # out.point.z = float(p[2])
         # self.point_pub.publish(out)
 
-        # 定义机械臂爪取
-        robot = ArmMove()
-        robot.log_plan_config()
+        # 物体 base 系坐标与水平距离 r（r>0.2 基本任何姿态都不可达）
+        self.get_logger().info(
+            f"物体(base_link): ({xyz[0]:.3f}, {xyz[1]:.3f}, {xyz[2]:.3f}) m, "
+            f"r={float(np.hypot(xyz[0], xyz[1])):.3f} m"
+        )
 
-        # 回到初始位置
-        robot.move_gripper("open")
-        robot.move_to_state("home")
-
+        # 法兰目标位置：爪沿 135°（-x/+y 平分角）伸向物体，
+        # 法兰停在接近方向反侧 0.10m（tcp_offset）+ 安装偏移投影
         target = PoseStamped()
         target.header.frame_id = "base_link"
         target.header.stamp = Clock().now().to_msg()
-        target.pose.position.x = xyz[0]
-        target.pose.position.y = xyz[1]
+        # 法兰目标位置 = 物体 + 偏移（tcp_offset 沿 135° 接近方向反侧 0.10m
+        # + 安装偏移投影）——位置偏移和姿态是配套的，删偏移=爪心插进棍里
+        target.pose.position.x = xyz[0] - 0.0746
+        target.pose.position.y = xyz[1] - 0.0465
         target.pose.position.z = xyz[2]
-        # 姿态写死：欧拉角 (0, -90°, 0) 的四元数 xyzw
-        target.pose.orientation.x = 0.0
-        target.pose.orientation.y = -0.70711
-        target.pose.orientation.z = 0.0
-        target.pose.orientation.w = 0.70711
-        robot.move_to_pose(target)
 
+        euler_xyz_deg = [0, 0, 0]
+        rot = R.from_euler(seq="xyz", angles=euler_xyz_deg, degrees=True)
+
+        xyzw = rot.as_quat()  # [qx,qy,qz,qw] scipy/ROS格式
+        # 姿态写死：grasp_geometry 侧抓 yaw=135°（工程默认实测方向）法兰四元数
+        # 注意：四个分量必须成套换，改单个分量会变成随机姿态
+        # [0.0, 0.0, 0.096, 1.5708, 0.0, 0.0]
+        test = np.array([0.0, 0.0, 0.096, 1.5708, 0.0, 0.0])
+        r_base = R.from_euler(seq="xyz", angles=test[3:], degrees=False)
+        # 第二步：构造【额外绕X转90度】的旋转
+        r_add = Rotation.from_euler("x", 270, degrees=True)
+
+        # 叠加旋转！⚠️顺序很关键
+        # r_new = r_add * r_base  含义：先执行r_base，再叠加r_add旋转
+        r_new = r_add * r_base
+        xyzw = r_new.as_quat()
+        target.pose.orientation.x = xyzw[0]
+        target.pose.orientation.y = xyzw[1]
+        target.pose.orientation.z = xyzw[2]
+        target.pose.orientation.w = xyzw[3]
+
+        # RViz 可视化：法兰目标广播成 TF 帧 grasp_target_frame——
+        # RViz 开 TF 显示即可看到目标点位置与爪朝向（z 轴≈接近方向）
+        gts = TransformStamped()
+        gts.header.stamp = stamp
+        gts.header.frame_id = "base_link"
+        gts.child_frame_id = "grasp_target_frame"
+        gts.transform.translation.x = float(target.pose.position.x)
+        gts.transform.translation.y = float(target.pose.position.y)
+        gts.transform.translation.z = float(target.pose.position.z)
+        gts.transform.rotation.x = float(target.pose.orientation.x)
+        gts.transform.rotation.y = float(target.pose.orientation.y)
+        gts.transform.rotation.z = float(target.pose.orientation.z)
+        gts.transform.rotation.w = float(target.pose.orientation.w)
+        self.tf_broadcaster.sendTransform(gts)
+
+        # if self.dry_run:
+        #     self.get_logger().info(
+        #         "dry_run：只广播 grasp_target_frame，实抓加 -p dry_run:=false",
+        #         throttle_duration_sec=5.0,
+        #     )
+        #     return
+
+        # 实抓：张爪 → home → 到抓取位
+        self.robot.log_plan_config()
+        # self.robot.move_gripper("open")
+        # self.robot.move_to_state("home")
+        # pose_link 必须传 link6_flange：姿态/位置都是法兰目标，
+        # 默认 gripper_base 会差 1.579 rad 安装旋转
+        self.robot.move_to_pose(target, pose_link="link6_flange")
         # self.get_logger().info(
         #     f"位置：{out.point.x:.2f}, {out.point.y:.2f}, {out.point.z:.2f} m",
         # self.get_logger().info(
@@ -288,7 +407,16 @@ class ImageSub3(Node):
                 # ---- 4. 位姿进 TF：parent_frame → object_frame ----
                 self.publish_tf(msg.header.stamp, rvec, tvec)
                 # ---- 5. base_link 系位置发运动侧 ----
-                self.publish_base_point(msg.header.stamp, rvec, tvec)
+                self.publish_base_point(msg.header.stamp, rvec, tvec, frame)
+                cv2.putText(
+                    frame,
+                    "OK1",
+                    (50, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (255, 255, 0),
+                    2,
+                )
         elif contours and self.K is None:
             self.get_logger().warn(
                 "waiting for camera_info...", throttle_duration_sec=2.0
@@ -297,8 +425,8 @@ class ImageSub3(Node):
         # ---- 6. 显示（放大 2 倍便于观看）----
         h, w = frame.shape[:2]
         debug = cv2.resize(frame, (w * 2, h * 2), interpolation=cv2.INTER_LINEAR)
-        cv2.imshow("Image", debug)
-        cv2.imshow("Mask", mask)  # 白色=落入 HSV 阈值区，调参看这个窗口
+        # cv2.imshow("Image", debug)
+        # cv2.imshow("Mask", mask)  # 白色=落入 HSV 阈值区，调参看这个窗口
         key = cv2.waitKey(1) & 0xFF
         if key == ord("s"):
             tm = time.strftime("%Y%m%d_%H%M%S")
